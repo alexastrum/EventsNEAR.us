@@ -1,0 +1,88 @@
+{
+  "vetur.validation.template": false,
+  "vetur.format.enable": false,
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "vetur.experimental.templateInterpolationService": true,
+
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "vetur.format.defaultFormatter.html": "prettyhtml",
+  "vetur.format.defaultFormatter.js": "prettier-eslint",
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "attrsSorter.order": [
+    "is",
+    "v-for",
+    "v-if",
+    "v-else-if",
+    "v-else",
+    "v-show",
+    "v-cloak",
+    "v-once",
+    "v-pre",
+    "id",
+    "ref",
+    "key",
+    "v-slot",
+    "v-slot.+",
+    "#.*",
+    "slot",
+    "v-model",
+    "v-model.+",
+    "v-bind",
+    "v-bind.+",
+    ":.+",
+    "v-text",
+    "v-text.+",
+    "v-html",
+    "v-html.+",
+    "class",
+    "v-on.+",
+    "@.+",
+    "name",
+    "data-.+",
+    "ng-.+",
+    "src",
+    "for",
+    "type",
+    "href",
+    "values",
+    "title",
+    "alt",
+    "role",
+    "aria-.+",
+    "$unknown$"
+  ],
+  "todohighlight.isEnable": true,
+  "todohighlight.include": [
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.html",
+    "**/*.php",
+    "**/*.css",
+    "**/*.scss",
+    "**/*.vue",
+    "**/*.styl"
+  ],
+  "workbench.iconTheme": "vscode-icons"
+}
