@@ -83,6 +83,5 @@
     "**/*.scss",
     "**/*.vue",
     "**/*.styl"
-  ],
-  "workbench.iconTheme": "vscode-icons"
+  ]
 }
