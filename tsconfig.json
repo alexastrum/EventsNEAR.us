@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "src/*": ["./quasar/src/*"],
+      "shared/*": ["./quasar/src/shared/*"]
+    }
+  }
+}
