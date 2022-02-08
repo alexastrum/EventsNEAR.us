@@ -1,6 +1,6 @@
 // app global css in SCSS form
 .container {
-  max-width: 1000px;
+  max-width: 1200px;
 }
 
 body {
@@ -8,9 +8,16 @@ body {
   background-color: $dark;
 }
 
-.fn-lg {
+.fn-xl {
   font-size: 24pt;
+}
+.fn-lg {
+  font-size: 20pt;
 }
 .fn-md {
   font-size: 12pt;
+}
+
+.fn-bold {
+  font-weight: bold;
 }

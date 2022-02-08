@@ -1,13 +1,13 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout>
     <q-header class="bg-dark">
-      <q-toolbar
-        class="container q-mx-auto q-py-lg text-light row q-col-gutter-sm"
-      >
+      <q-toolbar class="container q-mx-auto q-py-lg text-light row q-px-md">
         <!-- LOGO -->
-        <div class="fn-lg">Events<b>NEAR</b>us</div>
+        <h1 class="fn-xl text-left q-my-none cursor-pointer" to="/">
+          Events<b>NEAR</b>us
+        </h1>
         <!-- SEARCH -->
-        <div class="col">
+        <div class="col q-mx-lg">
           <q-input
             dark
             dense
@@ -41,6 +41,34 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <!-- FOOTER -->
+    <q-footer class="bg-dark">
+      <q-toolbar class="container q-mx-auto q-py-lg text-light row q-px-md">
+        <div class="column q-col-gutter-sm">
+          <div class="row q-gutter-md">
+            <div>Market</div>
+            <div>Activity</div>
+            <div>FAQ</div>
+            <div>White Paper</div>
+          </div>
+          <div class="row q-gutter-md">
+            <div>Twitter</div>
+            <div>Instagram</div>
+            <div>Discord</div>
+          </div>
+        </div>
+        <q-space />
+        <div class="column q-col-gutter-sm">
+          <div class="row justify-end q-gutter-md">
+            <div>This project is in public beta</div>
+          </div>
+          <div class="row justify-end q-gutter-md">
+            <div>2021 Events<b>NEAR</b>us | Powered by NEAR</div>
+          </div>
+        </div>
+      </q-toolbar>
+    </q-footer>
   </q-layout>
 </template>
 

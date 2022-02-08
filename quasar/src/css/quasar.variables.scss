@@ -17,6 +17,7 @@ $secondary: #26a69a;
 $accent: #9c27b0;
 
 $dark: #1a1c1d;
+$lightdark: #212121;
 $light: #efefef;
 
 $positive: #21ba45;
@@ -26,4 +27,8 @@ $warning: #f2c037;
 
 .text-light {
   color: $light;
+}
+
+.bg-lightdark {
+  background-color: $lightdark;
 }
