@@ -8,7 +8,9 @@ body {
   @extend .fn-md;
   background-color: $dark;
 }
-
+.fn-xxl {
+  font-size: 32pt;
+}
 .fn-xl {
   font-size: 24pt;
 }
@@ -24,6 +26,7 @@ body {
 }
 .fn-link {
   text-decoration: none;
+  color: inherit;
 }
 .fn-link:hover {
   text-decoration: underline;
