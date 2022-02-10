@@ -1,8 +1,12 @@
 <template>
   <q-page>
     <div class="container column q-mx-auto q-px-md q-col-gutter-y-xl q-mb-xl">
-      <featured-event-section class="section" />
-      <newest-event-section />
+      <div>
+        <h2 class="q-my-none fn-xl fn-bold text-light">Featured Events</h2>
+        <div class="text-grey fn-md">
+          There are no results for search query <b>"{{ query }}"</b>
+        </div>
+      </div>
     </div>
   </q-page>
 </template>
@@ -14,13 +18,11 @@
 </style>
 
 <script lang="ts">
-import FeaturedEventSection from 'src/components/FeaturedEventSection.vue';
-import NewestEventSection from 'src/components/NewestEventSection.vue';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  components: { FeaturedEventSection, NewestEventSection },
-  name: 'IndexPage',
+  name: 'SearchPage',
+  props: { query: String },
   setup() {
     return;
   },

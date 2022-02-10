@@ -1,6 +1,7 @@
 // app global css in SCSS form
 .container {
   max-width: 1200px;
+  width: 100%;
 }
 
 body {
@@ -20,4 +21,10 @@ body {
 
 .fn-bold {
   font-weight: bold;
+}
+.fn-link {
+  text-decoration: none;
+}
+.fn-link:hover {
+  text-decoration: underline;
 }
