@@ -61,21 +61,21 @@
         <q-toolbar class="container q-mx-auto q-py-lg text-light row q-px-md">
           <div class="column q-col-gutter-sm">
             <div class="row q-gutter-md">
-              <div>Market</div>
-              <div>Activity</div>
-              <div>FAQ</div>
-              <div>White Paper</div>
+              <!-- <div>Market</div> -->
+              <!-- <div>Activity</div> -->
+              <!-- <div>FAQ</div> -->
+              <!-- <div>White Paper</div> -->
             </div>
             <div class="row q-gutter-md">
-              <div>Twitter</div>
-              <div>Instagram</div>
+              <!-- <div>Twitter</div>
+              <div>Instagram</div> -->
               <div>Discord</div>
             </div>
           </div>
           <q-space />
           <div class="column q-col-gutter-sm">
             <div class="row justify-end q-gutter-md">
-              <div>This project is in public beta</div>
+              <div>This project is in public alpha</div>
             </div>
             <div class="row justify-end q-gutter-md">
               <div>2021 Events<b>NEAR</b>us | Powered by NEAR</div>

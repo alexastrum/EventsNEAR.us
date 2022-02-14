@@ -5982,6 +5982,11 @@ vue-loader@16.8.3:
     hash-sum "^2.0.0"
     loader-utils "^2.0.0"
 
+vue-near@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/vue-near/-/vue-near-0.2.1.tgz#a6f029da2a3bdf1eeadfd2b41c075a18a2196a66"
+  integrity sha512-Vf8dKJKOrS2gs083HfWajiPsFxKHdAi21pZQq4bhYyl4dQ8oRpnarqyE+62GTf2XshhxrjMIncB4FlcjCeCGtw==
+
 vue-router@^4.0.0:
   version "4.0.12"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-4.0.12.tgz#8dc792cddf5bb1abcc3908f9064136de7e13c460"
