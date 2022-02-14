@@ -5,11 +5,7 @@ const cors = require('cors');
 const app = express();
 app.use(cors({ origin: true }));
 
-var serviceAccount = require("./permissions.json");
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://events-near-us.firebaseio.com"
-});
+admin.initializeApp();
 const db = admin.firestore();
 
 // create
