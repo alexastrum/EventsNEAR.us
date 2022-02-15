@@ -1,6 +1,7 @@
 <template>
   <q-scroll-area style="width: 100%; height: 100vh">
     <q-layout>
+      <!-- HEADER -->
       <q-header class="bg-transparent">
         <q-toolbar class="container q-mx-auto q-py-lg text-light row q-px-md">
           <!-- LOGO -->
@@ -35,7 +36,7 @@
             </q-input>
           </q-form>
           <!-- LINKS -->
-          <div class="row q-gutter-md">
+          <div class="row q-gutter-md items-center">
             <router-link to="/about" class="text-light fn-link">
               About
             </router-link>
@@ -45,13 +46,36 @@
             <router-link to="/organize" class="text-light fn-link">
               Organize
             </router-link>
-            <router-link to="/" @click="login" class="text-light fn-link">
-              Login
+            <!-- AUTH -->
+            <router-link
+              to="/"
+              v-if="!currentUser"
+              @click="signIn"
+              class="text-light fn-link"
+            >
+              <b>Login</b>
             </router-link>
+            <div v-else>
+              <q-btn
+                class="q-my-none fn-md fn-link"
+                no-caps
+                :label="currentUser.accountId"
+                outline
+              >
+                <q-menu fit no-caps color="bg-grey-10" outline>
+                  <q-list dark bordered separator class="bg-grey-10 text-right">
+                    <q-item clickable v-close-popup @click="signOut()">
+                      <q-item-section class="fn-sm">Logout</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </div>
           </div>
         </q-toolbar>
       </q-header>
 
+      <!-- MAIN -->
       <q-page-container>
         <router-view />
       </q-page-container>
@@ -88,7 +112,7 @@
 </template>
 
 <script lang="ts">
-import { contract, nearConfig, walletConnection } from 'src/boot/near';
+import { useNear } from 'src/hooks/near';
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -103,18 +127,9 @@ export default defineComponent({
         (await router.push(`/search?q=${searchQuery.value}`));
     };
 
-    const login = async () => {
-      console.log(nearConfig);
-      await walletConnection.requestSignIn(
-        {
-          contractId: nearConfig.contractName, //nearConfig.,
-          methodNames: ['TEST'], //[contract?.addMessage.name || ''],
-        }, //contract requesting access
-        'NEAR Guest Book' //optional name
-      );
-    };
+    const { signIn, signOut, currentUser } = useNear();
 
-    return { searchQuery, search, login };
+    return { searchQuery, search, signIn, signOut, currentUser };
   },
 });
 </script>

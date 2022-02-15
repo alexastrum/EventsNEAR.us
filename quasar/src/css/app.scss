@@ -21,6 +21,10 @@ body {
   font-size: 12pt;
 }
 
+.fn-sm {
+  font-size: 10pt;
+}
+
 .fn-bold {
   font-weight: bold;
 }
@@ -30,4 +34,7 @@ body {
 }
 .fn-link:hover {
   text-decoration: underline;
+}
+.fn-thin {
+  font-weight: 400;
 }

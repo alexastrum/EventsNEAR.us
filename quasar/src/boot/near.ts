@@ -1,45 +1,30 @@
 import { boot } from 'quasar/wrappers';
-import { connect, keyStores, WalletConnection, Contract } from 'near-api-js';
+import * as nearAPI from 'near-api-js';
 import { getConfig } from './config';
-import { NearConfig } from 'near-api-js/lib/near';
+import { WalletConnection } from 'near-api-js';
+import { BrowserLocalStorageKeyStore } from 'near-api-js/lib/key_stores';
 
 export interface NearUser {
   accountId: string;
   balance: string;
 }
 
-let currentUser: NearUser, walletConnection: WalletConnection;
-
-let contract: Contract;
+let near: nearAPI.Near;
+let wallet: WalletConnection;
+let keyStore: BrowserLocalStorageKeyStore;
 
 export const nearConfig = getConfig();
 
 export default boot(async () => {
   const nearConfig = getConfig();
-  const keyStore = new keyStores.BrowserLocalStorageKeyStore();
+  const keyStore = new nearAPI.keyStores.BrowserLocalStorageKeyStore();
 
-  const near = await connect({
-    keyStore,
-    ...nearConfig,
-  });
+  // Initializing connection to the NEAR testnet
+  near = await nearAPI.connect({ keyStore, ...nearConfig });
+
+  // Initialize wallet connection
+  wallet = new nearAPI.WalletConnection(near, null);
   console.log('NEAR CONNECTED');
-  console.log(nearConfig);
-
-  walletConnection = new WalletConnection(near, null);
-
-  if (walletConnection.getAccountId()) {
-    currentUser = {
-      accountId: walletConnection.getAccountId() as string,
-      balance: (await walletConnection.account().state()).amount,
-    };
-  }
-
-  contract = new Contract(walletConnection.account(), 'CONTRACT NAME', {
-    // View methods are read-only – they don't modify the state, but usually return some value
-    viewMethods: ['getMessages'],
-    // Change methods can modify the state, but you don't receive the returned value when called
-    changeMethods: ['addMessage'],
-  });
 });
 
-export { currentUser, contract, walletConnection };
+export { wallet, near, keyStore };
