@@ -47,6 +47,7 @@
               Organize
             </router-link>
             <!-- AUTH -->
+
             <router-link
               to="/"
               v-if="!currentUser"
@@ -59,7 +60,7 @@
               <q-btn
                 class="q-my-none fn-md fn-link"
                 no-caps
-                :label="currentUser.accountId"
+                :label="currentUser?.accountId"
                 outline
               >
                 <q-menu fit no-caps color="bg-grey-10" outline>
@@ -112,6 +113,7 @@
 </template>
 
 <script lang="ts">
+import { wallet } from 'src/boot/near';
 import { useNear } from 'src/hooks/near';
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
