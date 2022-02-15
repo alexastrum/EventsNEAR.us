@@ -64,7 +64,7 @@
               >
                 <q-menu fit no-caps color="bg-grey-10" outline>
                   <q-list dark bordered separator class="bg-grey-10 text-right">
-                    <q-item clickable v-close-popup @click="signOut()">
+                    <q-item clickable v-close-popup @click="signOut">
                       <q-item-section class="fn-sm">Logout</q-item-section>
                     </q-item>
                   </q-list>
