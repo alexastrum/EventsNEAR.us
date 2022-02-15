@@ -5,9 +5,11 @@
         <div class="row q-col-gutter-sm">
           <q-skeleton dark size="100px" square />
           <div class="col column q-py-none">
-            <div class="q-my-none q-py-none fn-lg col">Event</div>
+            <div class="q-my-none q-py-none fn-lg col">
+              {{ name || 'Event' }}
+            </div>
             <div class="fn-md col">Lorem Ipsum</div>
-            <div class="text-grey-6">Community</div>
+            <div class="text-grey-6">{{ subtitle || 'Community' }}</div>
           </div>
         </div>
       </div>
@@ -35,7 +37,7 @@ import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
   name: 'MainLayout',
-  props: { extend: Boolean, small: Boolean },
+  props: { extend: Boolean, small: Boolean, name: String, subtitle: String },
   setup() {
     const searchQuery = ref<string>();
     return { searchQuery };

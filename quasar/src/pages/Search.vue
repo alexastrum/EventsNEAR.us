@@ -2,7 +2,7 @@
   <q-page>
     <div class="container column q-mx-auto q-px-md q-col-gutter-y-xl q-mb-xl">
       <div>
-        <h2 class="q-my-none fn-xl fn-bold text-light">Featured Events</h2>
+        <h2 class="q-my-none fn-xl fn-bold text-light">Search Results</h2>
         <div class="text-grey fn-md">
           There are no results for search query <b>"{{ query }}"</b>
         </div>

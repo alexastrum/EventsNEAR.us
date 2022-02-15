@@ -1,5 +1,7 @@
 import { NearConfig } from 'near-api-js/lib/near';
 
+const contractName = 'aloin.testnet';
+
 export type Environments =
   | 'mainnet'
   | 'production'
@@ -11,11 +13,12 @@ export type Environments =
   | 'ci'
   | 'ci-betanet';
 
-export function getConfig(): NearConfig {
+export function getConfig(): NearConfig & { contractName: string } {
   if (process.env.PROD) {
     return {
       headers: {},
       networkId: 'mainnet',
+      contractName: contractName,
       nodeUrl: 'https://rpc.mainnet.near.org',
       walletUrl: 'https://wallet.near.org',
       helperUrl: 'https://helper.mainnet.near.org',
@@ -24,6 +27,7 @@ export function getConfig(): NearConfig {
     return {
       headers: {},
       networkId: 'testnet',
+      contractName: contractName,
       nodeUrl: 'https://rpc.testnet.near.org',
       walletUrl: 'https://wallet.testnet.near.org',
       helperUrl: 'https://helper.testnet.near.org',

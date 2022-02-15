@@ -13,7 +13,7 @@
                 About
               </h3>
               <div class="col fn-md text-light">Lorem Ipsum Dolor</div>
-              <div class="text-grey-6 q-mt-lg">Community</div>
+              <div class="text-grey-6 q-mt-lg text-right">Organized by GCT</div>
             </div>
           </q-card>
         </div>
@@ -24,7 +24,7 @@
         <div class="fit">
           <div class="row q-col-gutter-lg justify-between">
             <div class="col-4" v-for="i in [1, 2, 3]" :key="i">
-              <event-card small />
+              <event-card small name="Ticket" subtitle="10N" />
             </div>
           </div>
         </div>

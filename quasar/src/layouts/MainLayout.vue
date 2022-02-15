@@ -45,7 +45,7 @@
             <router-link to="/organize" class="text-light fn-link">
               Organize
             </router-link>
-            <router-link to="/events" class="text-light fn-link">
+            <router-link to="/" @click="login" class="text-light fn-link">
               Login
             </router-link>
           </div>
@@ -88,6 +88,7 @@
 </template>
 
 <script lang="ts">
+import { contract, nearConfig, walletConnection } from 'src/boot/near';
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -101,7 +102,19 @@ export default defineComponent({
       searchQuery.value &&
         (await router.push(`/search?q=${searchQuery.value}`));
     };
-    return { searchQuery, search };
+
+    const login = async () => {
+      console.log(nearConfig);
+      await walletConnection.requestSignIn(
+        {
+          contractId: nearConfig.contractName, //nearConfig.,
+          methodNames: ['TEST'], //[contract?.addMessage.name || ''],
+        }, //contract requesting access
+        'NEAR Guest Book' //optional name
+      );
+    };
+
+    return { searchQuery, search, login };
   },
 });
 </script>
