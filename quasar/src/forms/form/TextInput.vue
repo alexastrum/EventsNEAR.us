@@ -1,7 +1,9 @@
 <template>
   <q-input
-    outlined
     :required="isRequired"
+    color="white"
+    dark
+    filled
     v-bind="$attrs"
     v-model="content"
     :rules="[(val) => !isRequired || !!val]"

@@ -27,7 +27,7 @@
             </div>
           </div>
         </div>
-        <div class="text-grey-6 text-right fn-md q-px-md">
+        <div class="text-grey-6 text-right fn-md q-px-md q-mb-md">
           {{ subtitle }}
         </div>
       </div>

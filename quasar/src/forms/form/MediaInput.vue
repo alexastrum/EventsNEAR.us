@@ -1,5 +1,5 @@
 <template>
-  <q-item class="q-pt-none q-pa-none q-pb-lg">
+  <q-item class="q-pt-none q-pa-none">
     <q-item-section v-if="modelValue" avatar>
       <image-renderer :content="modelValue" />
     </q-item-section>
@@ -36,7 +36,7 @@
 import firebase from 'firebase/app';
 import 'firebase/storage';
 import { defineComponent, ref, computed } from 'vue';
-import BooleanRenderer from 'src/components/admin/renderers/BooleanRenderer.vue';
+import BooleanRenderer from '../renderers/BooleanRenderer.vue';
 import ImageRenderer from '../renderers/ImageRenderer.vue';
 import { date } from 'quasar';
 
