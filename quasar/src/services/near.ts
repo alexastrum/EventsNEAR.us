@@ -4,7 +4,7 @@ import { NearConfig } from 'near-api-js/lib/near';
 import { ContractMethods } from 'near-api-js/lib/contract';
 
 export const NEAR_SWRV_KEY = 'near:api';
-export const CONTRACT_NAME = process.env.CONTRACT_NAME || 'aloin.testnet';
+export const CONTRACT_NAME = 'aloin';
 
 export function getConfig(): NearConfig {
   if (process.env.PROD) {
@@ -47,6 +47,7 @@ export function getContract(
   methods: ContractMethods
 ) {
   const accountId = wallet.getAccountId() as string;
+  const nearConfig = near.config as NearConfig;
 
   // Initializing our contract APIs by contract name and configuration
   const contract = accountId
@@ -56,7 +57,7 @@ export function getContract(
         // accountId of the contract we will be loading
         // NOTE: All contracts on NEAR are deployed to an account and
         // accounts can only have one contract deployed to them.
-        contractId,
+        `contractId.${nearConfig.networkId}`,
         { ...methods, sender: accountId } as ContractMethods
       )
     : undefined;
