@@ -7,6 +7,9 @@
           Organize an Event
         </h2>
         <div class="fit">
+          <q-card bordered dark flat class="bg-lightdark row">
+            <div class="column q-pa-lg">d</div>
+          </q-card>
           <div class="text-grey fn-md">Organize an event</div>
         </div>
       </div>
