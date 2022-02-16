@@ -1,0 +1,43 @@
+<template>
+  <q-input
+    outlined
+    :required="isRequired"
+    v-bind="$attrs"
+    v-model="content"
+    :rules="[(val) => !isRequired || !!val]"
+    :autogrow="autogrow || isMultiple"
+  />
+</template>
+
+<script lang="ts">
+import { defineComponent, computed, PropType } from 'vue';
+
+export default defineComponent({
+  name: 'TextInput',
+  props: {
+    modelValue: {} as PropType<string | string[]>,
+    isRequired: Boolean,
+    isMultiple: Boolean,
+    autogrow: Boolean,
+  },
+  emits: ['update:modelValue'],
+  setup(props, { emit }) {
+    const content = computed({
+      get: () =>
+        props.isMultiple && Array.isArray(props.modelValue)
+          ? props.modelValue?.join('\n')
+          : props.modelValue,
+      set: (value) => {
+        emit(
+          'update:modelValue',
+          props.isMultiple && typeof value === 'string'
+            ? value.split('\n')
+            : value
+        );
+      },
+    });
+
+    return { content };
+  },
+});
+</script>
