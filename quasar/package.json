@@ -1,9 +1,6 @@
 {
   "name": "quasar",
-  "version": "0.0.1",
-  "description": "A Quasar Framework app",
-  "productName": "Quasar App",
-  "author": "Aloinn <46081985+Aloinn@users.noreply.github.com>",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "start": "quasar dev",
