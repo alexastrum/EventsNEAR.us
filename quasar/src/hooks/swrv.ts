@@ -4,13 +4,13 @@ import { isFunction } from '@vue/shared';
 import { SWRVCache } from 'swrv';
 import { markRaw, reactive, Ref, toRefs, UnwrapRef, watchEffect } from 'vue';
 
-const defaultCache = undefined; //new SWRVCache<CacheItem<unknown, unknown>>();
+const defaultCache = new SWRVCache<CacheItem<unknown, unknown>>();
 
 export type ArgsFromKey<A, K> = K extends () => any ? A : [K];
 
 export type CacheItem<D, E> = {
-  data: UnwrapRef<D>;
-  error: UnwrapRef<E>;
+  data?: UnwrapRef<D>;
+  error?: UnwrapRef<E>;
   isValidating: UnwrapRef<boolean>;
 };
 
@@ -86,28 +86,28 @@ export function useSWRV<
       return;
     }
 
-    const hash = conf?.ttl ? conf.cache?.serializeKey(args) : undefined;
+    const hash = conf.ttl ? conf.cache?.serializeKey(args) : undefined;
+    let cachedResult: CacheItem<D, E> | undefined;
     if (hash) {
       const cachedItem = hash ? conf.cache?.get(hash) : undefined;
-      const cachedResult = cachedItem
-        ? cachedItem.data
-        : reactive({
-            data: undefined as D | undefined,
-            error: undefined as E | undefined,
-            isValidating: true,
-          });
-
-      // Reactively bind current result to the cached proxy
-      result.data = cachedResult.data;
-      result.error = cachedResult.error;
-      result.isValidating = cachedResult.isValidating;
 
       if (cachedItem) {
+        // Reactively bind current result to the cached proxy
+        result.data = cachedItem.data.data;
+        result.error = cachedItem.data.error;
+        result.isValidating = cachedItem.data.isValidating;
         // No need to repeatedly revalidate already cached items.
         return;
       }
-      // Add new items to the cache.
-      conf.cache?.set(hash, cachedResult, conf.ttl || 0);
+
+      cachedResult = reactive({
+        data: undefined as D | undefined,
+        error: undefined as E | undefined,
+        isValidating: true,
+      });
+
+      // Add new item to the cache.
+      conf.cache?.set(hash, cachedResult, conf.ttl);
     }
 
     let handle: any;
@@ -131,22 +131,35 @@ export function useSWRV<
         let errorRetryCount = -1;
         unsubscribe = observable({
           next: (next) => {
-            result.data = markRaw(next as unknown as object) as UnwrapRef<D>;
+            const rawData = markRaw(next as unknown as object) as UnwrapRef<D>;
+            result.data = rawData;
             result.error = undefined;
-            if (hash) {
-              conf.cache?.set(hash, result, conf?.ttl || 0);
+            result.isValidating = false;
+            if (hash && cachedResult) {
+              cachedResult.data = rawData;
+              cachedResult.error = undefined;
+              cachedResult.isValidating = false;
+              // Extend expiration time
+              conf.cache?.set(hash, cachedResult, conf.ttl);
             }
             errorRetryCount = -1;
           },
           error: (error) => {
-            result.error = markRaw(error as unknown as object) as UnwrapRef<E>;
+            const rawError = markRaw(
+              error as unknown as object
+            ) as UnwrapRef<E>;
+            result.error = rawError;
             result.isValidating = false;
+            if (cachedResult) {
+              cachedResult.error = rawError;
+              cachedResult.isValidating = false;
+            }
             errorRetryCount = 0;
           },
           complete: () => {
             if (errorRetryCount >= 0) {
               // Last event was `error`
-              const interval = conf?.errorRetryInterval;
+              const interval = conf.errorRetryInterval;
               if (
                 interval &&
                 conf.shouldRetryOnError &&
@@ -165,8 +178,13 @@ export function useSWRV<
           },
         });
       } catch (error) {
-        result.error = markRaw(error as object) as UnwrapRef<E>;
+        const rawError = markRaw(error as object) as UnwrapRef<E>;
+        result.error = rawError;
         result.isValidating = false;
+        if (cachedResult) {
+          cachedResult.error = rawError;
+          cachedResult.isValidating = false;
+        }
       }
     };
     void tick();
