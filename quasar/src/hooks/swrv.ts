@@ -4,7 +4,7 @@ import { isFunction } from '@vue/shared';
 import { SWRVCache } from 'swrv';
 import { markRaw, reactive, Ref, toRefs, UnwrapRef, watchEffect } from 'vue';
 
-const defaultCache = new SWRVCache<CacheItem<unknown, unknown>>();
+export const defaultCache = new SWRVCache<CacheItem<unknown, unknown>>();
 
 export type ArgsFromKey<A, K> = K extends () => any ? A : [K];
 
