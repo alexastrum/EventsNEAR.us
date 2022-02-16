@@ -70,7 +70,9 @@
                       v-close-popup
                       @click="currentUser.signOut"
                     >
-                      <q-item-section class="fn-sm">Logout</q-item-section>
+                      <q-item-section class="fn-sm" @click="currentUser.signOut"
+                        >Logout</q-item-section
+                      >
                     </q-item>
                   </q-list>
                 </q-menu>

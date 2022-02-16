@@ -4,7 +4,7 @@ import { isFunction } from '@vue/shared';
 import { SWRVCache } from 'swrv';
 import { markRaw, reactive, Ref, toRefs, UnwrapRef, watchEffect } from 'vue';
 
-const defaultCache = new SWRVCache<CacheItem<unknown, unknown>>();
+const defaultCache = undefined; //new SWRVCache<CacheItem<unknown, unknown>>();
 
 export type ArgsFromKey<A, K> = K extends () => any ? A : [K];
 
@@ -87,21 +87,21 @@ export function useSWRV<
     }
 
     const hash = conf?.ttl ? conf.cache?.serializeKey(args) : undefined;
-    const cachedItem = hash ? conf.cache?.get(hash) : undefined;
-    const cachedResult = cachedItem
-      ? cachedItem.data
-      : reactive({
-          data: undefined as D | undefined,
-          error: undefined as E | undefined,
-          isValidating: true,
-        });
-
-    // Reactively bind current result to the cached proxy
-    result.data = cachedResult.data;
-    result.error = cachedResult.error;
-    result.isValidating = cachedResult.isValidating;
-
     if (hash) {
+      const cachedItem = hash ? conf.cache?.get(hash) : undefined;
+      const cachedResult = cachedItem
+        ? cachedItem.data
+        : reactive({
+            data: undefined as D | undefined,
+            error: undefined as E | undefined,
+            isValidating: true,
+          });
+
+      // Reactively bind current result to the cached proxy
+      result.data = cachedResult.data;
+      result.error = cachedResult.error;
+      result.isValidating = cachedResult.isValidating;
+
       if (cachedItem) {
         // No need to repeatedly revalidate already cached items.
         return;
@@ -165,8 +165,8 @@ export function useSWRV<
           },
         });
       } catch (error) {
-        cachedResult.error = markRaw(error as object) as UnwrapRef<E>;
-        cachedResult.isValidating = false;
+        result.error = markRaw(error as object) as UnwrapRef<E>;
+        result.isValidating = false;
       }
     };
     void tick();

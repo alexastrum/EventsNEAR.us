@@ -48,6 +48,7 @@ export function getContract(
 ) {
   const accountId = wallet.getAccountId() as string;
   const nearConfig = near.config as NearConfig;
+  contractId = `${contractId}.${nearConfig.networkId}`;
 
   // Initializing our contract APIs by contract name and configuration
   const contract = accountId
@@ -57,7 +58,7 @@ export function getContract(
         // accountId of the contract we will be loading
         // NOTE: All contracts on NEAR are deployed to an account and
         // accounts can only have one contract deployed to them.
-        `contractId.${nearConfig.networkId}`,
+        contractId,
         { ...methods, sender: accountId } as ContractMethods
       )
     : undefined;
@@ -144,7 +145,10 @@ export async function getCurrentUser(
         balance: (await wallet.account().state()).amount, // account().getAccountBalance().available
         signMessage,
         verifySignature,
-        signOut: () => wallet.signOut(),
+        signOut: () => {
+          wallet.signOut();
+          location.reload();
+        },
       }
     : undefined;
 }
