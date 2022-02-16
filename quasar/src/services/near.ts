@@ -3,6 +3,9 @@ import { BrowserLocalStorageKeyStore } from 'near-api-js/lib/key_stores';
 import { NearConfig } from 'near-api-js/lib/near';
 import { ContractMethods } from 'near-api-js/lib/contract';
 
+export const NEAR_SWRV_KEY = 'near:api';
+export const CONTRACT_NAME = process.env.CONTRACT_NAME || 'aloin.testnet';
+
 export function getConfig(): NearConfig {
   if (process.env.PROD) {
     return {

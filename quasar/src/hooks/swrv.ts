@@ -4,15 +4,52 @@ import { isFunction } from '@vue/shared';
 import { SWRVCache } from 'swrv';
 import { markRaw, reactive, Ref, toRefs, UnwrapRef, watchEffect } from 'vue';
 
-const cache = new SWRVCache();
+const defaultCache = new SWRVCache<CacheItem<unknown, unknown>>();
 
 export type ArgsFromKey<A, K> = K extends () => any ? A : [K];
+
+export type CacheItem<D, E> = {
+  data: UnwrapRef<D>;
+  error: UnwrapRef<E>;
+  isValidating: UnwrapRef<boolean>;
+};
 
 export type SWRVResult<A, K, D, E> = {
   key: Ref<ArgsFromKey<A, K>>;
   data: Ref<D>;
   error: Ref<E>;
   isValidating: Ref<boolean>;
+};
+
+export type ObservableFn<D, E> = (subscriber: {
+  next: (data: D) => void;
+  error: (error: E) => void;
+  complete: () => void;
+}) => void | /* unsubscribe */ (() => void);
+
+export interface SWRVConfig<D, E> {
+  refreshInterval: number;
+  cache?: SWRVCache<CacheItem<D, E>>;
+  // dedupingInterval?: number
+  ttl: number;
+  // serverTTL?: number
+  // revalidateOnFocus?: boolean
+  // revalidateDebounce?: number
+  shouldRetryOnError: boolean;
+  errorRetryInterval: number;
+  errorRetryCount: number;
+  // fetcher?: Fn,
+  // isOnline?: () => boolean
+  // isDocumentVisible?: () => boolean
+}
+
+const defaultConfig: SWRVConfig<unknown, unknown> = {
+  refreshInterval: 0,
+  cache: defaultCache,
+  ttl: 0,
+  shouldRetryOnError: true,
+  errorRetryInterval: 5000,
+  errorRetryCount: 5,
 };
 
 export function useSWRV<
@@ -27,12 +64,11 @@ export function useSWRV<
   E = Error
 >(
   key: K,
-  fn: (...args: ArgsFromKey<A, K>) => Promise<D> | D,
-  config?: {
-    refreshInterval: number;
-    ttl: number | null;
-  }
+  fn: (...args: ArgsFromKey<A, K>) => ObservableFn<D, E> | Promise<D> | D,
+  config: Partial<SWRVConfig<D, E>> = {}
 ) {
+  const conf = { ...(defaultConfig as SWRVConfig<D, E>), ...config };
+
   const result = reactive({
     key: undefined as ArgsFromKey<A, K> | undefined,
     data: undefined as D | undefined,
@@ -50,10 +86,10 @@ export function useSWRV<
       return;
     }
 
-    const hash = config?.ttl !== null ? cache.serializeKey(args) : undefined;
-    const cachedItem = hash ? cache.get(hash) : undefined;
+    const hash = conf?.ttl ? conf.cache?.serializeKey(args) : undefined;
+    const cachedItem = hash ? conf.cache?.get(hash) : undefined;
     const cachedResult = cachedItem
-      ? (cachedItem.data as typeof result)
+      ? cachedItem.data
       : reactive({
           data: undefined as D | undefined,
           error: undefined as E | undefined,
@@ -71,32 +107,78 @@ export function useSWRV<
         return;
       }
       // Add new items to the cache.
-      cache.set(hash, cachedResult, config?.ttl || 0);
+      conf.cache?.set(hash, cachedResult, conf.ttl || 0);
     }
 
     let handle: any;
+    let unsubscribe: (() => void) | void;
     const tick = async () => {
       try {
         const data = await fn(...args);
-        cachedResult.data = markRaw(data as unknown as object) as UnwrapRef<D>;
-        cachedResult.error = undefined;
-        cachedResult.isValidating = false;
-        if (hash) {
-          cache.set(hash, cachedResult, config?.ttl || 0);
-        }
-        if (config?.refreshInterval) {
-          handle = setTimeout(() => {
-            void tick();
-          }, config.refreshInterval);
-        }
-      } catch (e) {
-        cachedResult.error = markRaw(e as object) as UnwrapRef<E>;
+        const observable = isFunction(data)
+          ? data
+          : ({
+              next,
+              complete,
+            }: {
+              next: (data: D) => void;
+              complete: () => void;
+            }) => {
+              next(data);
+              complete();
+            };
+
+        let errorRetryCount = -1;
+        unsubscribe = observable({
+          next: (next) => {
+            cachedResult.data = markRaw(
+              next as unknown as object
+            ) as UnwrapRef<D>;
+            cachedResult.error = undefined;
+            if (hash) {
+              conf.cache?.set(hash, cachedResult, conf?.ttl || 0);
+            }
+            errorRetryCount = -1;
+          },
+          error: (error) => {
+            cachedResult.error = markRaw(
+              error as unknown as object
+            ) as UnwrapRef<E>;
+            cachedResult.isValidating = false;
+            errorRetryCount = 0;
+          },
+          complete: () => {
+            if (errorRetryCount >= 0) {
+              // Last event was `error`
+              const interval = conf?.errorRetryInterval;
+              if (
+                interval &&
+                conf.shouldRetryOnError &&
+                errorRetryCount < conf.errorRetryCount
+              ) {
+                conf.errorRetryCount++;
+                handle = setTimeout(() => void tick(), interval);
+              }
+            } else {
+              // Last event was `next`
+              const interval = conf.refreshInterval;
+              if (interval) {
+                handle = setTimeout(() => void tick(), interval);
+              }
+            }
+          },
+        });
+      } catch (error) {
+        cachedResult.error = markRaw(error as object) as UnwrapRef<E>;
         cachedResult.isValidating = false;
       }
     };
     void tick();
 
     onInvalidate(() => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       clearTimeout(handle);
     });
@@ -115,7 +197,15 @@ export async function mutate<
   K extends string | (() => A | null | undefined),
   D extends object,
   E = Error
->(key: K, data: D | Promise<D>, ttl = 0) {
+>(
+  key: K,
+  data: D | Promise<D>,
+  cache = defaultConfig.cache,
+  ttl = defaultConfig.ttl
+) {
+  if (!cache) {
+    return;
+  }
   const args = (isFunction(key) ? key() : [key]) as ArgsFromKey<A, K>;
   if (!args) {
     return;
@@ -124,10 +214,7 @@ export async function mutate<
   const hash = cache.serializeKey(args);
   const cacheItem = hash ? cache.get(hash) : undefined;
   const cachedResult = cacheItem
-    ? (cacheItem.data as {
-        data?: D;
-        error?: E;
-      })
+    ? cacheItem.data
     : reactive({
         data: undefined as D | undefined,
         error: undefined as E | undefined,
@@ -137,7 +224,7 @@ export async function mutate<
   try {
     cachedResult.data = markRaw<D>(await data);
   } catch (e) {
-    cachedResult.error = markRaw(e as object) as UnwrapRef<E>;
+    cachedResult.error = markRaw(e as object);
   }
   cache.set(hash, cachedResult, ttl);
 }

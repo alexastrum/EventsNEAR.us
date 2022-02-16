@@ -1,5 +1,6 @@
 {
   "name": "functions",
+  "license": "MIT",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc",

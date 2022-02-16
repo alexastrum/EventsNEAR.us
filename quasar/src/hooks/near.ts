@@ -1,9 +1,12 @@
 import { ContractMethods } from 'near-api-js/lib/contract';
-import { getContract, getCurrentUser, getNear } from 'src/services/near';
+import {
+  CONTRACT_NAME,
+  getContract,
+  getCurrentUser,
+  getNear,
+  NEAR_SWRV_KEY,
+} from 'src/services/near';
 import { useSWRV } from './swrv';
-
-export const NEAR_SWRV_KEY = 'near:api';
-const CONTRACT_NAME = 'aloin.testnet';
 
 export function useNear() {
   // create a keyStore for signing transactions using the user's key
@@ -17,7 +20,7 @@ export function useNearContract(
     // View methods are read-only – they don't modify the state, but usually return some value
     viewMethods: ['getMessages'],
     // Change methods can modify the state, but you don't receive the returned value when called
-    changeMethods: ['addMessage'],
+    changeMethods: ['addMessage', 'createEvent'],
   }
 ) {
   const near = useNear();
