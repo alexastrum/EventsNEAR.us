@@ -51,7 +51,7 @@
             <router-link
               to="/"
               v-if="!currentUser"
-              @click="signIn"
+              @click="near?.signIn"
               class="text-light fn-link"
             >
               <b>Login</b>
@@ -65,7 +65,11 @@
               >
                 <q-menu fit no-caps color="bg-grey-10" outline>
                   <q-list dark bordered separator class="bg-grey-10 text-right">
-                    <q-item clickable v-close-popup @click="signOut">
+                    <q-item
+                      clickable
+                      v-close-popup
+                      @click="currentUser.signOut"
+                    >
                       <q-item-section class="fn-sm">Logout</q-item-section>
                     </q-item>
                   </q-list>
@@ -113,8 +117,7 @@
 </template>
 
 <script lang="ts">
-import { wallet } from 'src/boot/near';
-import { useNear } from 'src/hooks/near';
+import { useCurrentUser, useNearContract } from 'src/hooks/near';
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -129,9 +132,10 @@ export default defineComponent({
         (await router.push(`/search?q=${searchQuery.value}`));
     };
 
-    const { signIn, signOut, currentUser } = useNear();
+    const { data: near } = useNearContract();
+    const { data: currentUser } = useCurrentUser();
 
-    return { searchQuery, search, signIn, signOut, currentUser };
+    return { searchQuery, search, near, currentUser };
   },
 });
 </script>
