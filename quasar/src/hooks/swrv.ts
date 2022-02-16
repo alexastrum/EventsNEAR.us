@@ -131,20 +131,16 @@ export function useSWRV<
         let errorRetryCount = -1;
         unsubscribe = observable({
           next: (next) => {
-            cachedResult.data = markRaw(
-              next as unknown as object
-            ) as UnwrapRef<D>;
-            cachedResult.error = undefined;
+            result.data = markRaw(next as unknown as object) as UnwrapRef<D>;
+            result.error = undefined;
             if (hash) {
-              conf.cache?.set(hash, cachedResult, conf?.ttl || 0);
+              conf.cache?.set(hash, result, conf?.ttl || 0);
             }
             errorRetryCount = -1;
           },
           error: (error) => {
-            cachedResult.error = markRaw(
-              error as unknown as object
-            ) as UnwrapRef<E>;
-            cachedResult.isValidating = false;
+            result.error = markRaw(error as unknown as object) as UnwrapRef<E>;
+            result.isValidating = false;
             errorRetryCount = 0;
           },
           complete: () => {
