@@ -8,8 +8,8 @@
         </h2>
         <div class="fit">
           <div class="row q-col-gutter-lg justify-between">
-            <div class="col-3" v-for="i in [1, 2, 3, 4, 5]" :key="i">
-              <event-card />
+            <div class="col-3" v-for="event in eventsList" :key="event.id">
+              <event-card :event="event" extend />
             </div>
           </div>
         </div>
@@ -26,14 +26,31 @@
 
 <script lang="ts">
 import EventCard from 'src/components/EventCard.vue';
-import { defineComponent } from 'vue';
+import { defineComponent, computed, ref } from 'vue';
+import firebase from 'firebase';
+import 'firebase/firestore';
+import { wrapSnapToDocument } from 'src/components/models';
 
 export default defineComponent({
   components: { EventCard },
   name: 'SearchPage',
   props: { query: String },
   setup() {
-    return;
+    const fs = firebase.firestore();
+    const eventsList = computed(() =>
+      eventsListRaw.value?.map((snap) => wrapSnapToDocument(snap))
+    );
+
+    const eventsListRaw =
+      ref<
+        firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>[]
+      >();
+
+    fs.collection('events').onSnapshot((doc) => {
+      eventsListRaw.value = doc.docs;
+    });
+
+    return { eventsList };
   },
 });
 </script>

@@ -2,17 +2,21 @@
   <q-page>
     <div class="container column q-mx-auto q-px-md q-col-gutter-y-xl q-mb-xl">
       <!-- MAIN -->
+
       <div class="fit q-pb-md">
-        <h2 class="q-my-none fn-xxl fn-bold text-light">Event</h2>
+        <h2 class="q-my-none fn-xxl fn-bold text-light">
+          {{ event?.data?.title }}
+        </h2>
 
         <div class="q-mt-md">
           <q-card bordered dark flat class="bg-lightdark column">
-            <q-skeleton dark height="500px" square />
+            <q-img v-if="event?.data?.image" :src="event?.data.image" />
+            <q-skeleton v-else dark height="500px" square />
             <div class="q-pa-lg">
-              <h3 class="q-my-none q-py-none fn-lg fn-bold text-light">
-                About
-              </h3>
-              <div class="col fn-md text-light">Lorem Ipsum Dolor</div>
+              <h3 class="q-my-md q-py-none fn-lg fn-bold text-light">About</h3>
+              <div class="col fn-md text-light">
+                {{ event?.data.description }}
+              </div>
               <div class="text-grey-6 q-mt-lg text-right">Organized by GCT</div>
             </div>
           </q-card>
@@ -24,7 +28,7 @@
         <div class="fit">
           <div class="row q-col-gutter-lg justify-between">
             <div class="col-4" v-for="i in [1, 2, 3]" :key="i">
-              <event-card small :event="{ title: 'Ticket' }" subtitle="10N" />
+              <event-card small :event="{ data: { title: 'Ticket' } }" />
             </div>
           </div>
         </div>
@@ -52,14 +56,29 @@
 
 <script lang="ts">
 import EventCard from 'src/components/EventCard.vue';
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
+import firebase from 'firebase';
+import 'firebase/firestore';
+import {
+  Event,
+  FirestoreDocument,
+  wrapSnapToDocument,
+} from 'src/components/models';
 
 export default defineComponent({
   components: { EventCard },
   name: 'SearchPage',
-  props: { query: String },
-  setup() {
-    return;
+  props: { eventId: String },
+  setup(props) {
+    const fs = firebase.firestore();
+    const event = ref<FirestoreDocument<Event>>();
+    fs.collection('events')
+      .doc(props.eventId)
+      .onSnapshot((snap) => {
+        event.value = wrapSnapToDocument(snap);
+      });
+
+    return { event };
   },
 });
 </script>

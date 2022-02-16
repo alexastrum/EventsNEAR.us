@@ -15,7 +15,7 @@ export function useNear() {
 }
 
 export function useNearContract(
-  contractName = CONTRACT_NAME,
+  contractName: string = CONTRACT_NAME,
   methods: ContractMethods = {
     // View methods are read-only – they don't modify the state, but usually return some value
     viewMethods: ['getMessages'],

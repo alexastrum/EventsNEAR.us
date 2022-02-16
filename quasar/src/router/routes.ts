@@ -13,7 +13,11 @@ const routes: RouteRecordRaw[] = [
         props: (route) => ({ query: route.query.q }),
       },
       { path: 'events', component: () => import('pages/Events.vue') },
-      { path: 'event', component: () => import('pages/Event.vue') },
+      {
+        path: 'event/:eventId',
+        component: () => import('pages/Event.vue'),
+        props: true,
+      },
       { path: 'organize', component: () => import('pages/Organize.vue') },
     ],
   },

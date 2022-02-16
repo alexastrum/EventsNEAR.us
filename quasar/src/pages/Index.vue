@@ -23,16 +23,20 @@ import TopEventSection from 'src/components/TopEventSection.vue';
 import { computed, defineComponent, ref } from 'vue';
 import firebase from 'firebase';
 import 'firebase/firestore';
-import { Event } from 'src/components/models';
+import {
+  Event,
+  FirestoreDocument,
+  wrapSnapToDocument,
+} from 'src/components/models';
 
 export default defineComponent({
   components: { FeaturedEventSection, TopEventSection },
   name: 'IndexPage',
   setup() {
     const fs = firebase.firestore();
-    const featuredEvent = ref<Event>();
+    const featuredEvent = ref<FirestoreDocument<Event>>();
     const latestEvents = computed(() =>
-      latestEventsList.value?.map((snap) => snap.data())
+      latestEventsList.value?.map((snap) => wrapSnapToDocument(snap))
     );
 
     const latestEventsList =
@@ -41,22 +45,18 @@ export default defineComponent({
       >();
 
     fs.collection('events')
-      .doc('nX01eXlmfb8Pj32LsD2g')
+      .limit(1)
+      .where('featured', '==', true)
       .onSnapshot((snap) => {
-        featuredEvent.value = snap.data() as Event;
-        latestEventsList.value = [
-          snap as firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>,
-          snap as firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>,
-          snap as firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>,
-        ];
+        featuredEvent.value = wrapSnapToDocument(snap.docs[0]);
       });
 
-    // fs.collection('events')
-    //   .limit(3)
-    //   .where('featured', '==', true)
-    //   .onSnapshot((doc) => {
-    //     latestEventsList.value = doc.docs;
-    //   });
+    fs.collection('events')
+      .limit(3)
+      .where('latest', '==', true)
+      .onSnapshot((doc) => {
+        latestEventsList.value = doc.docs;
+      });
 
     return { featuredEvent, latestEvents };
   },

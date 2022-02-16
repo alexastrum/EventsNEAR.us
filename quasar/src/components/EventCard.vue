@@ -1,14 +1,17 @@
 <template>
-  <router-link to="/event" class="fn-link cursor-pointer">
+  <router-link
+    :to="event?.id ? `/event/${event?.id}` : '/'"
+    class="fn-link cursor-pointer"
+  >
     <q-card v-if="small" bordered dark flat class="fit bg-lightdark">
       <div class="fit">
         <div class="row q-pa-md items-center">
           <div class="row q-col-gutter-md">
             <div height="100px">
               <q-img
-                v-if="event?.image"
+                v-if="event?.data?.image"
                 :ratio="1"
-                :src="event?.image"
+                :src="event?.data.image"
                 height="100px"
                 width="100px"
               />
@@ -16,16 +19,16 @@
             </div>
             <div class="col column">
               <div class="q-my-none q-py-none fn-lg fn-bold q-mb-md">
-                {{ event?.title || 'Event' }}
+                {{ event?.data?.title || 'Event' }}
               </div>
               <div class="fn-sm col">
-                {{ event?.description || 'Lorem Ipsum' }}
+                {{ event?.data?.description || 'Lorem Ipsum' }}
               </div>
             </div>
           </div>
         </div>
         <div class="text-grey-6 text-right fn-sm q-px-md">
-          {{ subtitle || 'Community' }}
+          {{ subtitle }}
         </div>
       </div>
     </q-card>
@@ -40,17 +43,17 @@
       <div class="column q-pa-lg" :class="extend ? 'col' : 'fit'">
         <div>
           <q-img
-            v-if="event?.image"
-            :height="extend ? '300px' : '200px'"
-            :src="event?.image"
+            v-if="event?.data?.image"
+            :height="large ? '300px' : '200px'"
+            :src="event?.data.image"
           />
           <q-skeleton v-else dark square :height="extend ? '300px' : '200px'" />
         </div>
-        <h3 class="q-my-none q-py-none q-mt-md fn-xl">
-          {{ event?.title || 'Event' }}
+        <h3 class="q-my-lg q-py-none fn-lg fn-bold">
+          {{ event?.data?.title || 'Event' }}
         </h3>
-        <div class="col fn-md text-light">
-          {{ event?.description || 'Lorem Ipsum Dolor' }}
+        <div class="col fn-sm text-light">
+          {{ event?.data?.description || 'Lorem Ipsum Dolor' }}
         </div>
         <div class="text-grey-6 q-mt-lg">Community</div>
       </div>
@@ -60,16 +63,17 @@
 
 <script lang="ts">
 import { defineComponent, ref, PropType } from 'vue';
-import { Event } from './models';
+import { Event, FirestoreDocument } from './models';
 
 export default defineComponent({
   name: 'MainLayout',
   props: {
     extend: Boolean,
     small: Boolean,
+    large: Boolean,
     name: String,
     subtitle: String,
-    event: Object as PropType<Event>,
+    event: Object as PropType<FirestoreDocument<Event>>,
   },
   setup() {
     const searchQuery = ref<string>();
