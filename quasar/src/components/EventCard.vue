@@ -21,13 +21,13 @@
               <div class="q-my-none q-py-none fn-lg fn-bold q-mb-md">
                 {{ event?.data?.title || 'Event' }}
               </div>
-              <div class="fn-sm col">
+              <div class="fn-md col">
                 {{ event?.data?.description || 'Lorem Ipsum' }}
               </div>
             </div>
           </div>
         </div>
-        <div class="text-grey-6 text-right fn-sm q-px-md">
+        <div class="text-grey-6 text-right fn-md q-px-md">
           {{ subtitle }}
         </div>
       </div>
@@ -52,7 +52,7 @@
         <h3 class="q-my-lg q-py-none fn-lg fn-bold">
           {{ event?.data?.title || 'Event' }}
         </h3>
-        <div class="col fn-sm text-light">
+        <div class="col fn-md text-light">
           {{ event?.data?.description || 'Lorem Ipsum Dolor' }}
         </div>
         <div class="text-grey-6 q-mt-lg">Community</div>

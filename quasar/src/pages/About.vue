@@ -28,21 +28,23 @@
           <div class="col-5 column">
             <div class="col">
               <h3 class="q-my-none fn-lg fn-bold text-light">Event Hosters</h3>
-              <div class="text-white fn-md">
+              <div class="text-white fn-md q-mt-md">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
                 congue vel mi eget posuere. Sed semper tortor eu risus dignissim
                 suscipit. Suspendisse commodo gravida aliquam.
               </div>
             </div>
-            <div class="col">
-              <h3 class="q-my-none fn-lg fn-bold text-light">Event Goers</h3>
-              <div class="text-white fn-md">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
-                congue vel mi eget posuere. Sed semper tortor eu risus dignissim
-                suscipit. Suspendisse commodo gravida aliquam. Cras sodales dui
-                ut risus sodales, non finibus felis volutpat. Nam vel ornare
-                dui. Nulla sit amet odio vehicula, imperdiet quam in, aliquam
-                erat.
+            <div class="col row items-end">
+              <div>
+                <h3 class="q-my-none fn-lg fn-bold text-light">Event Goers</h3>
+                <div class="text-white fn-md q-mt-md">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
+                  congue vel mi eget posuere. Sed semper tortor eu risus
+                  dignissim suscipit. Suspendisse commodo gravida aliquam. Cras
+                  sodales dui ut risus sodales, non finibus felis volutpat. Nam
+                  vel ornare dui. Nulla sit amet odio vehicula, imperdiet quam
+                  in, aliquam erat.
+                </div>
               </div>
             </div>
           </div>
