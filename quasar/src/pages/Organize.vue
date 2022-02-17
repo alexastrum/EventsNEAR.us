@@ -39,13 +39,6 @@
                       v-model="form.title"
                     />
                   </div>
-                  <div class="row">
-                    <text-input
-                      label="Event name"
-                      class="col"
-                      v-model="form.title"
-                    />
-                  </div>
                 </div>
               </q-card>
               <!-- DISTRIBUTION -->
