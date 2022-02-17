@@ -1,13 +1,12 @@
 <template>
-  {{ currency }}
-  <q-input
+  <text-input
     :type="currency ? 'text' : 'number'"
     outlined
     :input-class="currency ? 'text-right' : ''"
-    :mask="currency && '#.##'"
-    :fill-mask="currency && '0'"
+    :mask="currency ? '#.##' : ''"
+    :fill-mask="currency ? '0' : ''"
     :reverse-fill-mask="currency"
-    :suffix="currency && '$'"
+    :suffix="currency ? '$' : ''"
     v-bind="$attrs"
     v-model="content"
     :rules="[(val) => !isRequired || !!val]"
@@ -17,8 +16,10 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
+import TextInput from './TextInput.vue';
 
 export default defineComponent({
+  components: { TextInput },
   name: 'NumberInput',
   props: {
     isRequired: Boolean,

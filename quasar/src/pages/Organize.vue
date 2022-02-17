@@ -20,8 +20,10 @@
               </q-card>
             </div>
             <div class="col-5 column">
+              <!-- DETAILS -->
               <q-card bordered dark flat class="bg-lightdark row">
                 <div class="q-pa-lg fit">
+                  <div class="q-mb-md fn-bold">Event Details</div>
                   <div class="row">
                     <text-input
                       label="Event name"
@@ -37,9 +39,58 @@
                       v-model="form.title"
                     />
                   </div>
+                  <div class="row">
+                    <text-input
+                      label="Event name"
+                      class="col"
+                      v-model="form.title"
+                    />
+                  </div>
                 </div>
               </q-card>
-
+              <!-- DISTRIBUTION -->
+              <q-card bordered dark flat class="bg-lightdark row q-mt-md">
+                <div class="q-pa-lg fit">
+                  <div class="q-mb-lg fn-bold">Tickets Distribution</div>
+                  <div class="column q-gutter-sm">
+                    <!-- FOR -->
+                    <div v-for="(dist, ind) in distribution" :key="ind">
+                      <div class="row q-col-gutter-md q-px-sm">
+                        <text-input
+                          label="Wallet Address"
+                          outline
+                          class="col-7"
+                          v-model="distribution[ind].walletAddress"
+                        />
+                        <number-input
+                          label="Amount"
+                          class="col"
+                          v-model="distribution[ind].amount"
+                        />
+                        <div>
+                          <q-btn
+                            :disabled="distribution.length == 1"
+                            @click="distributionDelete(ind)"
+                            flat
+                            dark
+                            class="bg-red"
+                            dense
+                            icon="close"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <!-- ADD MORE -->
+                    <q-btn
+                      @click="distributionAdd"
+                      flat
+                      dark
+                      class="bg-secondary text-grey-4 col q-py-sm"
+                      label="ADD recipient"
+                    />
+                  </div>
+                </div>
+              </q-card>
               <q-btn
                 flat
                 dark
@@ -59,11 +110,17 @@
 <script lang="ts">
 import NearAuthPrompt from 'src/components/NearAuthPrompt.vue';
 import MediaInput from 'src/forms/form/MediaInput.vue';
+import NumberInput from 'src/forms/form/NumberInput.vue';
 import TextInput from 'src/forms/form/TextInput.vue';
 import { defineComponent, ref } from 'vue';
 
+interface DistributionData {
+  walletAddress: string;
+  amount: number;
+}
+
 export default defineComponent({
-  components: { MediaInput, TextInput, NearAuthPrompt },
+  components: { MediaInput, TextInput, NearAuthPrompt, NumberInput },
   name: 'SearchPage',
   props: { query: String },
   setup() {
@@ -71,7 +128,22 @@ export default defineComponent({
       title: '',
       image: undefined,
     });
-    return { form };
+    const emptyDist = {
+      walletAddress: '',
+      amount: 0,
+    };
+    const distribution = ref<DistributionData[]>([{ ...emptyDist }]);
+
+    const distributionDelete = (i: number) => {
+      distribution.value.splice(i, 1);
+    };
+    const distributionAdd = () => {
+      distribution.value.push({
+        ...emptyDist,
+        amount: distribution.value.length,
+      });
+    };
+    return { form, distribution, distributionDelete, distributionAdd };
   },
 });
 </script>

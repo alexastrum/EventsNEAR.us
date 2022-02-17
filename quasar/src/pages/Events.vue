@@ -3,12 +3,14 @@
     <div class="container column q-mx-auto q-px-md q-col-gutter-y-xl q-mb-xl">
       <!-- MAIN -->
       <div class="fit q-pb-md">
-        <h2 class="q-my-none fn-xl fn-bold text-light q-mb-lg">
-          Featured Events
-        </h2>
+        <h2 class="q-my-none fn-xl fn-bold text-light q-mb-lg">All Events</h2>
         <div class="fit">
           <div class="row q-col-gutter-lg justify-between">
-            <div class="col-3" v-for="event in eventsList" :key="event.id">
+            <div
+              class="col-6 col-md-3"
+              v-for="event in eventsList"
+              :key="event.id"
+            >
               <event-card :event="event" extend />
             </div>
           </div>
