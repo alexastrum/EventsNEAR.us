@@ -20,9 +20,10 @@ export default boot(({ app }) => {
 
       firebase.firestore().settings({ ignoreUndefinedProperties: true });
 
-      if (/localhost:/.exec(location.host)) {
-        firebase.functions().useEmulator('localhost', 5001);
-      }
+      // TODO: Enable this to use emulator for local dev
+      // if (/localhost:/.exec(location.host)) {
+      //   firebase.functions().useEmulator('localhost', 5001);
+      // }
     }
   });
 });
