@@ -1,8 +1,40 @@
-import { PostedMessage, messages } from "./model";
+import { context } from "near-sdk-as";
+import {
+  PostedMessage,
+  messages,
+  Event,
+  Ticket,
+  events,
+  tickets,
+} from "./model";
 
 // --- contract code goes below
 
-export function createEvent(): void {}
+export function createEvent(
+  title: string,
+  ticketPrice: string[],
+  ticketOwners: {
+    accountId: string;
+    quantity: u32;
+  }[]
+): void {
+  const event = new Event(context.sender, title, ticketPrice);
+  events.set("id", event);
+  tickets.set("id", new Ticket());
+  // new Ticket();
+}
+
+export function transfer(ticketId: string, recipientAccountId: string): void {}
+
+export function listForSale(ticketId: string): void {}
+
+export function unlistForSale(ticketId: string): void {}
+
+export function buy(ticketId: string): void {}
+
+export function scan(ticketId: string): void {}
+
+export function unscan(ticketId: string): void {}
 
 // The maximum number of latest messages the contract returns.
 const MESSAGE_LIMIT = 10;
