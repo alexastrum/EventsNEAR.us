@@ -109,7 +109,7 @@
               <div>This project is in public alpha</div>
             </div>
             <div class="row justify-end q-gutter-md">
-              <div>2021 Events<b>NEAR</b>us | Powered by NEAR</div>
+              <div>2022 Events<b>NEAR</b>us | Powered by NEAR</div>
             </div>
           </div>
         </q-toolbar>
