@@ -31,7 +31,7 @@ function verifySignature(signature: string) {
     Buffer.from(hash, 'hex'),
     Buffer.from(publicKey, 'hex')
   );
-  logger.log('Signature good:', JSON.parse(signature));
+  logger.log('Signature good:', good, JSON.parse(signature));
 
   if (!good) {
     // throw new Error('Verify failed: Invalid signature: ' + hash);
