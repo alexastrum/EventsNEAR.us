@@ -25,5 +25,13 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "emulators": {
+    "firestore": {
+      "port": "8099"
+    },
+    "hosting": {
+      "port": "8000"
+    }
   }
 }

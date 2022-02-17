@@ -3,7 +3,7 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
-    "build": "tsc",
+    "build": "tsc --noEmitOnError false && echo",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
@@ -15,12 +15,10 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "@types/bs58": "^4.0.1",
-    "bs58": "^4.0.1",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "firebase-admin": "^10.0.2",
-    "firebase-functions": "^3.14.1",
+    "firebase-functions": "^3.18.0",
     "near-api-js": "^0.44.2"
   },
   "devDependencies": {
