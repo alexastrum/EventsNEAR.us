@@ -1,10 +1,14 @@
 import { connect, Contract, Near, WalletConnection } from 'near-api-js';
-import { BrowserLocalStorageKeyStore } from 'near-api-js/lib/key_stores';
+import {
+  BrowserLocalStorageKeyStore,
+  KeyStore,
+} from 'near-api-js/lib/key_stores';
 import { NearConfig } from 'near-api-js/lib/near';
 import { ContractMethods } from 'near-api-js/lib/contract';
+import { FirebaseUser, httpsCallable, signInWithCustomToken } from './firebase';
+import { mutate } from 'src/hooks/swrv';
 
-export const NEAR_SWRV_KEY = 'near:api';
-export const CONTRACT_NAME = 'aloin';
+export const CONTRACT_NAME: ContractId = 'aloin';
 
 export function getConfig(): NearConfig {
   if (process.env.PROD) {
@@ -35,7 +39,7 @@ export async function getNear() {
   const keyStore = getKeyStore();
   const near = await connect({ keyStore, ...nearConfig });
   const wallet = new WalletConnection(near, null);
-  return { near, wallet };
+  return { near, wallet, keyStore };
 }
 
 export type ContractId = string;
@@ -80,17 +84,40 @@ export function getContract(
   };
 }
 
-export interface FirebaseUser {
-  uid?: string;
+interface SignInRequest {
+  signature: string;
+}
+
+interface SignInResponse {
+  profile: {
+    // TODO
+  };
+  token: string;
 }
 
 export async function getCurrentUser(
   near: Near,
   wallet: WalletConnection,
-  firebaseUser: FirebaseUser
+  keyStore: KeyStore,
+  firebaseUser: FirebaseUser | null
 ) {
   const nearConfig = near.config as NearConfig;
   const accountId = wallet.getAccountId() as string;
+  const networkId = near.connection.networkId;
+  const isAnonymous = firebaseUser === null;
+  const isAuthenticated = !!firebaseUser;
+
+  if (accountId && isAnonymous) {
+    const signature = await signMessage('hello');
+    await verifySignature(signature);
+    const { profile, token } = await httpsCallable<
+      SignInRequest,
+      SignInResponse
+    >('signIn')({ signature });
+    await signInWithCustomToken(token);
+    await mutate('profile', profile);
+    console.log('signInWithCustomToken', signature, token, profile);
+  }
 
   /**
    * Crypto proof helper for CustomToken Firebase Auth workflow
@@ -102,45 +129,47 @@ export async function getCurrentUser(
     if (!accountId) {
       throw new Error('Sign message failed: Unauthenticated');
     }
-    // const key = await keyStore.getKey(
-    //   nearConfig.networkId,
-    //   currentUser.value.accountId
-    // );
-    // key?.sign(...)
-    const sig = await near.connection.signer.signMessage(Buffer.from(nonce));
-    return [
+    const keyPair = await keyStore.getKey(networkId, accountId);
+    const sig = keyPair.sign(Buffer.from(nonce));
+    return JSON.stringify([
       nearConfig.nodeUrl,
       accountId,
-      sig?.publicKey.toString(),
+      Buffer.from(sig?.publicKey.data).toString('hex'),
       nonce,
-      btoa(new TextDecoder().decode(sig?.signature)), // hash
-    ].join('.');
+      Buffer.from(sig?.signature).toString('hex'), // hash
+    ]);
   }
 
   async function verifySignature(signature: string) {
     if (!accountId) {
       throw new Error('Verify failed: Unauthenticated');
     }
-    const [nodeUrl, sigAccountId, publicKey, nonce, hash] =
-      signature.split('.');
+    const [nodeUrl, sigAccountId, publicKey, nonce, hash] = JSON.parse(
+      signature
+    ) as string[];
     if (nodeUrl !== nearConfig.nodeUrl) {
-      throw new Error('Verify failed: Invalid nodeUrl');
+      throw new Error('Verify failed: Invalid nodeUrl: ' + nodeUrl);
     }
     if (sigAccountId !== accountId) {
-      throw new Error('Verify failed: Invalid accountId');
+      throw new Error('Verify failed: Invalid accountId: ' + accountId);
     }
-    const key = await near.connection.signer.getPublicKey();
+    const key = await near.connection.signer.getPublicKey(accountId, networkId);
     // Note that on server we should call `view_access_key` to verify publicKey association with accountId,
     // see github.com/mehtaphysical/orbit-db-near-iam/blob/b247fb31be9da40fa365a6bc9a03f65b24543b17/src/verify.js
-    if (publicKey !== key.toString()) {
-      throw new Error('Verify failed: Invalid public key');
+    if (publicKey !== Buffer.from(key.data).toString('hex')) {
+      throw new Error('Verify failed: Invalid public key: ' + publicKey);
     }
-    return key?.verify(Buffer.from(nonce), Buffer.from(atob(hash)));
+    const result = key.verify(Buffer.from(nonce), Buffer.from(hash, 'hex'));
+    if (!result) {
+      throw new Error('Verify failed: Invalid signature: ' + hash);
+    }
   }
 
   return accountId
     ? {
         ...firebaseUser,
+        isAnonymous,
+        isAuthenticated,
         accountId,
         balance: (await wallet.account().state()).amount, // account().getAccountBalance().available
         signMessage,
