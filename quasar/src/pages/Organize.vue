@@ -56,12 +56,14 @@
                     <!-- FOR -->
                     <div v-for="(dist, ind) in distribution" :key="ind">
                       <div class="row q-col-gutter-md q-px-sm">
-                        <text-input
+                        <text-select-input
                           label="Wallet Address"
                           outline
                           class="col-7"
                           v-model="distribution[ind].walletAddress"
+                          :options="allUsers"
                         />
+
                         <number-input
                           label="Amount"
                           class="col"
@@ -101,6 +103,7 @@
           </div>
         </div>
       </div>
+      {{ allUsers }}
     </near-auth-prompt>
   </q-page>
 </template>
@@ -113,6 +116,9 @@ import MediaInput from 'src/forms/form/MediaInput.vue';
 import NumberInput from 'src/forms/form/NumberInput.vue';
 import TextInput from 'src/forms/form/TextInput.vue';
 import { defineComponent, ref } from 'vue';
+import firebase from 'firebase';
+import 'firebase/firestore';
+import TextSelectInput from 'src/forms/form/TextSelectInput.vue';
 
 interface DistributionData {
   walletAddress: string;
@@ -120,7 +126,13 @@ interface DistributionData {
 }
 
 export default defineComponent({
-  components: { MediaInput, TextInput, NearAuthPrompt, NumberInput },
+  components: {
+    MediaInput,
+    TextInput,
+    NearAuthPrompt,
+    NumberInput,
+    TextSelectInput,
+  },
   name: 'SearchPage',
   props: { query: String },
   setup() {
@@ -143,7 +155,21 @@ export default defineComponent({
         amount: distribution.value.length,
       });
     };
-    return { form, distribution, distributionDelete, distributionAdd };
+
+    // QUICK COMPLETE
+    const fs = firebase.firestore();
+    const allUsers = ref<string[]>();
+    fs.collection('users').onSnapshot((snap) => {
+      allUsers.value = snap.docs.map((snap) => snap.id);
+    });
+    // const usersList =
+    return {
+      form,
+      distribution,
+      distributionDelete,
+      distributionAdd,
+      allUsers,
+    };
   },
 });
 </script>
