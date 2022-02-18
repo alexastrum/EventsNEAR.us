@@ -64,7 +64,7 @@ export function getFirestoreDocObservable<D>(
       .collection(collectionPath) as firebase.firestore.CollectionReference<D>;
     return collection.doc(docId).onSnapshot(
       (snapshot) => {
-        observer.next(snapshot.data());
+        observer.next(unpackFirestoreData(snapshot.data()));
       },
       observer.error,
       observer.complete
@@ -79,10 +79,7 @@ export interface FirestoreQuery<D> {
     firebase.firestore.WhereFilterOp,
     D[keyof D]
   ];
-  whereEquals?: {
-    // Multi field conditions
-    [K in keyof D & string]?: D[K];
-  };
+  whereEquals?: Partial<D>;
   orderBy?: [
     (keyof D & string) | firebase.firestore.FieldPath,
     firebase.firestore.OrderByDirection
@@ -120,11 +117,59 @@ export function getFirestoreCollectionObservable<D>(
     return collection.onSnapshot(
       (snapshot) => {
         observer.next(
-          new Map(snapshot.docs.map((doc) => [doc.id, doc.data()]))
+          new Map(
+            snapshot.docs.map((doc) => [
+              doc.id,
+              unpackFirestoreData(doc.data()),
+            ])
+          )
         );
       },
       observer.error,
       observer.complete
     );
   };
+}
+
+export type DocumentData = firebase.firestore.DocumentData;
+
+function unpackFirestoreField<T>(val: T, maxDepth: number) {
+  if (maxDepth <= 0) {
+    return val;
+  }
+  if (val instanceof firebase.firestore.Timestamp) {
+    // Convert Timestamp to Date for interoperability with other collection implementations.
+    return val.toDate();
+  }
+  if (val instanceof firebase.firestore.DocumentReference) {
+    // Firebase SDK has a bug preventing onSnapshot from working on referenced docs.
+    // Convert DocumentReference to string for interoperability with other collection implementations.
+    // To load a referenced doc, use `const otherDoc = registry.watchDoc(() => thisDoc.value.data.otherDocPath)`
+    return val.path;
+  }
+  if (typeof val === 'object') {
+    return unpackFirestoreData(val, maxDepth - 1);
+  }
+  return val;
+}
+
+export function unpackFirestoreData<T>(data: T, maxDepth = 10): T {
+  if (Array.isArray(data)) {
+    return data.map((val: undefined) =>
+      unpackFirestoreField(val, maxDepth)
+    ) as unknown as T;
+  }
+  if (typeof data !== 'object') {
+    return data;
+  }
+  const keys = Object.keys(data);
+  const result: DocumentData = {};
+  // Make a copy of the object
+  keys.forEach((key) => {
+    result[key] = unpackFirestoreField(
+      (data as DocumentData)[key],
+      maxDepth
+    ) as undefined;
+  });
+  return result as T;
 }

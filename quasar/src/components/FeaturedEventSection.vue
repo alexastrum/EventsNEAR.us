@@ -4,7 +4,7 @@
     <div class="row q-col-gutter-md">
       <!-- FEATURED EVENTS -->
       <div class="col-12 col-md-7 column">
-        <h2 class="q-my-none row fn-xl fn-bold text-light">Featured Events</h2>
+        <h2 class="q-my-none row fn-xl fn-bold text-light">Featured Event</h2>
         <router-link to="/event" class="fn-link cursor-pointer col">
           <event-card extend large :event="featuredEvent" />
         </router-link>
