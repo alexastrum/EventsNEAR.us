@@ -8,7 +8,20 @@
     v-model="content"
     :rules="[(val) => !isRequired || !!val]"
     :autogrow="autogrow || isMultiple"
-  />
+  >
+    <template v-slot:prepend>
+      <slot name="prepend" />
+    </template>
+    <template v-slot:append>
+      <slot name="append" />
+    </template>
+    <template v-slot:default>
+      <slot name="default" />
+    </template>
+    <template v-slot:after>
+      <slot name="after" />
+    </template>
+  </q-input>
 </template>
 
 <script lang="ts">

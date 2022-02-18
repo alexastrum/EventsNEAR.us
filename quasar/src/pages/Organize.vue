@@ -39,6 +39,26 @@
                       v-model="form.title"
                     />
                   </div>
+                  <!--  -->
+                  <div class="row">
+                    <text-select-input
+                      v-model="form.tag"
+                      label="Tags"
+                      class="col-12"
+                      :options="tagOptions"
+                      @update:model-value="tagAdd(form.tag)"
+                    />
+                  </div>
+                  <div class="row q-mt-md">
+                    <q-chip
+                      removable
+                      @remove="form.tags.splice(key, 1)"
+                      v-for="(tag, key) in form.tags"
+                      :key="key"
+                    >
+                      {{ tag }}
+                    </q-chip>
+                  </div>
                 </div>
               </q-card>
               <!-- DISTRIBUTION -->
@@ -49,6 +69,7 @@
                     <!-- FOR -->
                     <div v-for="(dist, ind) in distribution" :key="ind">
                       <div class="row q-col-gutter-md q-px-sm">
+                        <!-- ADDRESS -->
                         <text-select-input
                           label="Wallet Address"
                           outline
@@ -56,12 +77,14 @@
                           v-model="distribution[ind].walletAddress"
                           :options="allUsers"
                         />
-
+                        <!-- AMOUNT -->
                         <number-input
                           label="Amount"
                           class="col"
                           v-model="distribution[ind].amount"
                         />
+
+                        <!-- BTN -->
                         <div>
                           <q-btn
                             :disabled="distribution.length == 1"
@@ -96,7 +119,6 @@
           </div>
         </div>
       </div>
-      {{ allUsers }}
     </near-auth-prompt>
   </q-page>
 </template>
@@ -132,10 +154,12 @@ export default defineComponent({
     const form = ref({
       title: '',
       image: undefined,
+      tags: [] as string[],
+      tag: '',
     });
     const emptyDist = {
       walletAddress: '',
-      amount: 0,
+      amount: 1,
     };
     const distribution = ref<DistributionData[]>([{ ...emptyDist }]);
 
@@ -145,9 +169,15 @@ export default defineComponent({
     const distributionAdd = () => {
       distribution.value.push({
         ...emptyDist,
-        amount: distribution.value.length,
       });
     };
+
+    //  TAGS
+    const tagAdd = (v: string, clear: () => void) => {
+      form.value.tags.push(v);
+      clear();
+    };
+    const tagOptions = ['Community', 'Virtual']; // TODO
 
     // QUICK COMPLETE
     const fs = firebase.firestore();
@@ -155,13 +185,15 @@ export default defineComponent({
     fs.collection('users').onSnapshot((snap) => {
       allUsers.value = snap.docs.map((snap) => snap.id);
     });
-    // const usersList =
+
     return {
       form,
       distribution,
       distributionDelete,
       distributionAdd,
       allUsers,
+      tagAdd,
+      tagOptions,
     };
   },
 });

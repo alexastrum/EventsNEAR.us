@@ -8,7 +8,7 @@
     hide-selected
     fill-input
     input-debounce="0"
-    :options="_options"
+    :options="updatedOptions"
     emit-value
     @filter="(a, b, c) => filterFn(a, b, c)"
   >
@@ -49,19 +49,19 @@ export default defineComponent({
       },
     });
 
-    const _options = ref(props.options);
+    const updatedOptions = ref(props.options);
     const filterFn = (val: string, update: (x: () => void) => void) => {
       update(() => {
         const needle = val.toLowerCase();
-        _options.value = [
+        updatedOptions.value = [
           ...(props.options?.filter(
             (v) => v.toLowerCase().indexOf(needle) > -1
           ) || []),
-          val,
+          ...(val == '' ? [] : [val]),
         ];
       });
     };
-    return { content, filterFn, _options };
+    return { content, filterFn, updatedOptions };
   },
 });
 </script>
