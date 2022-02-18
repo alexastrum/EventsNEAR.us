@@ -65,14 +65,22 @@
               >
                 <q-menu fit no-caps color="bg-grey-10" outline>
                   <q-list dark bordered separator class="bg-grey-10 text-right">
+                    <!-- EVENTS -->
+                    <q-item clickable v-close-popup class="column">
+                      <q-item-section class="fn-sm">
+                        <router-link to="/my-events" class="text-light fn-link">
+                          My Events
+                        </router-link>
+                      </q-item-section>
+                    </q-item>
+                    <!-- LOGOUT -->
                     <q-item
                       clickable
                       v-close-popup
+                      class="column"
                       @click="currentUser.signOut"
                     >
-                      <q-item-section class="fn-sm" @click="currentUser.signOut"
-                        >Logout</q-item-section
-                      >
+                      <q-item-section class="fn-sm">Logout</q-item-section>
                     </q-item>
                   </q-list>
                 </q-menu>
