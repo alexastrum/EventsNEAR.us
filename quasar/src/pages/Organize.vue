@@ -1,4 +1,5 @@
 <template>
+  {{ tagOptions }}dsfdsf
   <q-page>
     <near-auth-prompt>
       <div class="container column q-mx-auto q-px-md q-col-gutter-y-xl q-mb-xl">
@@ -130,10 +131,11 @@ import NearAuthPrompt from 'src/components/NearAuthPrompt.vue';
 import MediaInput from 'src/forms/form/MediaInput.vue';
 import NumberInput from 'src/forms/form/NumberInput.vue';
 import TextInput from 'src/forms/form/TextInput.vue';
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import firebase from 'firebase';
 import 'firebase/firestore';
 import TextSelectInput from 'src/forms/form/TextSelectInput.vue';
+import { useFirebaseDB } from 'src/hooks/firebase';
 
 interface DistributionData {
   walletAddress: string;
@@ -173,11 +175,12 @@ export default defineComponent({
     };
 
     //  TAGS
-    const tagAdd = (v: string, clear: () => void) => {
+    const tagAdd = (v: string) => {
       form.value.tags.push(v);
-      clear();
     };
-    const tagOptions = ['Community', 'Virtual']; // TODO
+    const tagOptions = computed(() =>
+      useFirebaseDB<string>(() => 'tags').data.value?.split(',')
+    );
 
     // QUICK COMPLETE
     const fs = firebase.firestore();

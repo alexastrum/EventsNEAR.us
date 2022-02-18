@@ -40,6 +40,7 @@ export function getFirebaseDBObservable<D>(path: string) {
     ref.on(
       'value',
       (snapshot) => {
+        console.log('db', snapshot);
         observer.next(snapshot.val() as D);
       },
       (error) => {

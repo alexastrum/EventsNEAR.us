@@ -184,7 +184,9 @@ export function useSWRV<D, K extends SWRVKey, E = Error>(
         unsubscribe = await observable({
           next: (next) => {
             const rawData = (
-              next ? markRaw(next as unknown as object) : next
+              typeof next === 'object'
+                ? markRaw(next as unknown as object)
+                : next
             ) as UnwrapRef<D>;
             result.data = rawData;
             result.error = undefined;
