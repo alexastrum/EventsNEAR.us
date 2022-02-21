@@ -118,8 +118,8 @@ export function createEvent(
   contract.createEvent(eventId, event, tickets);
 }
 
-export function listForSale(ticketId: string): void {
-  contract.listForSale(ticketId, 1);
+export function listForSale(ticketId: string): u32 {
+  return contract.listForSale(ticketId, 1);
 }
 
 export function unlistForSale(ticketId: string): void {
@@ -144,4 +144,8 @@ export function buyLotteryTicket(tierId: string): void {
 
 export function giveUpLottery(tierId: string): void {
   contract.giveUpLottery(tierId);
+}
+
+export function helloWorld(id: string): string {
+  return id + "ok";
 }

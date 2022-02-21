@@ -137,7 +137,7 @@ export class NFTContract extends PersistentNFT {
     }
   }
 
-  listForSale(ticketId: string, quantity: u32): void {
+  listForSale(ticketId: string, quantity: u32): u32 {
     oneYocto();
     this.predecesorIsOwner(ticketId);
 
@@ -157,6 +157,7 @@ export class NFTContract extends PersistentNFT {
 
     ticket.for_sale = quantity;
     this.tickets.set(ticketId, ticket);
+    return quantity;
   }
 
   buy(ticketId: string, quantity: u32): void {
