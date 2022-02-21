@@ -145,8 +145,8 @@ import NumberInput from 'src/forms/form/NumberInput.vue';
 import TextInput from 'src/forms/form/TextInput.vue';
 import { computed, defineComponent, ref } from 'vue';
 import TextSelectInput from 'src/forms/form/TextSelectInput.vue';
-import { useFirebaseDB, useFirestoreCollection } from 'src/hooks/firebase';
-import { useCurrentUser, useNearContract } from 'src/hooks/near';
+import { useFirebaseDB } from 'src/hooks/firebase';
+import { useCurrentUser } from 'src/hooks/near';
 
 import firebase from 'firebase';
 import 'firebase/firestore';
@@ -208,11 +208,11 @@ export default defineComponent({
     const fs = firebase.firestore();
     const allUsers = ref<string[]>();
     fs.collection('users').onSnapshot((snap) => {
-      allUsers.value = snap.docs.map((snap) => snap.id);
+      allUsers.value = snap.docs.map((d) => d.id);
     });
 
     // saving
-    const { data: contract } = useNearContract();
+    // const { data: contract } = useNearContract();
     const createEventAndMint = async () => {
       const event = await fs.collection('events').add({
         title: form.value.title,
