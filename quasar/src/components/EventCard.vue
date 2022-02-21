@@ -1,18 +1,21 @@
 <template>
-  <router-link
-    :to="event?.id ? `/event/${event?.id}` : '/'"
-    class="fn-link cursor-pointer"
-  >
+  <router-link :to="id ? `/event/${id}` : '/'" class="fn-link cursor-pointer">
     <q-card v-if="small || smaller" bordered dark flat class="fit bg-lightdark">
       <div class="fit">
         <div class="row q-pa-md items-center">
           <!-- CONTENT -->
-          <div v-if="event?.data" class="col row q-col-gutter-y-md">
+          <div v-if="event" class="col row q-col-gutter-y-md">
+            <div
+              v-if="quantity && quantity > 1"
+              class="q-mr-sm items-center row"
+            >
+              {{ quantity }} x
+            </div>
             <div :height="smaller ? '90px' : '120px'">
               <q-img
-                v-if="event?.data?.image"
+                v-if="event?.image"
                 :ratio="1"
-                :src="event?.data.image"
+                :src="event.image"
                 :height="smaller ? '90px' : '120px'"
                 :width="smaller ? '90px' : '120px'"
               />
@@ -22,17 +25,17 @@
                 class="q-my-none q-py-none fn-bold"
                 :class="smaller ? 'fn-md' : 'fn-lg q-mb-sm'"
               >
-                {{ event?.data?.title || 'Event' }}
+                {{ event?.title || 'Untitled event' }}
               </h3>
               <div :class="smaller ? 'fn-sm' : 'fn-md'">
-                {{ event?.data?.description || 'Lorem Ipsum' }}
+                {{ description || event?.description || 'No description' }}
               </div>
 
-              <div
-                class="row col items-end justify-end text-grey-6"
-                v-if="subtitle"
-              >
-                {{ subtitle }}
+              <div class="row col items-end justify-end text-grey-6">
+                <template v-if="subtitle">
+                  {{ subtitle }}
+                </template>
+                <template v-else> Hosted by {{ event.ownerUid }} </template>
               </div>
             </div>
           </div>
@@ -59,26 +62,27 @@
       :class="extend ? 'full-height' : ''"
     >
       <!-- CONTENT -->
-      <div
-        class="column q-pa-lg"
-        :class="extend ? 'col' : 'fit'"
-        v-if="event?.data"
-      >
+      <div class="column q-pa-lg" :class="extend ? 'col' : 'fit'" v-if="event">
         <div>
           <q-img
-            v-if="event?.data?.image"
+            v-if="event?.image"
             :height="large ? '300px' : '200px'"
-            :src="event?.data.image"
+            :src="event.image"
           />
           <q-skeleton v-else dark square :height="extend ? '300px' : '200px'" />
         </div>
         <h3 class="q-mt-md q-mb-sm q-py-none fn-lg fn-bold">
-          {{ event?.data?.title || 'Event' }}
+          {{ event?.title || 'Untitled event' }}
         </h3>
         <div class="col fn-md text-light">
-          {{ event?.data?.description || 'Lorem Ipsum Dolor' }}
+          {{ description || event?.description || 'No description' }}
         </div>
-        <div class="text-grey-6 q-mt-lg">Community</div>
+        <div class="text-grey-6 q-mt-lg">
+          <template v-if="subtitle">
+            {{ subtitle }}
+          </template>
+          <template v-else> Hosted by {{ event.ownerUid }} </template>
+        </div>
       </div>
       <!-- SKELETON -->
       <div v-else class="column q-pa-lg" :class="extend ? 'col' : 'fit'">
@@ -92,23 +96,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType } from 'vue';
-import { Event, FirestoreDocument } from './models';
+import { useFirestoreDoc } from 'src/hooks/firebase';
+import { defineComponent, PropType } from 'vue';
+import { Event } from '../models';
 
 export default defineComponent({
   name: 'EventCard',
   props: {
+    id: String,
+    quantity: Number,
     extend: Boolean,
     small: Boolean,
     smaller: Boolean,
     large: Boolean,
-    name: String,
     subtitle: String,
-    event: Object as PropType<FirestoreDocument<Event>>,
+    description: String,
+    event: Object as PropType<Event>,
   },
-  setup() {
-    const searchQuery = ref<string>();
-    return { searchQuery };
+  setup(props) {
+    const { data: ownerUser } = useFirestoreDoc(
+      'users',
+      () => props.event?.ownerUid
+    );
+    return { ownerUser };
   },
 });
 </script>

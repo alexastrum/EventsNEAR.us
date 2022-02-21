@@ -21,6 +21,7 @@
               class="q-ml-md"
               color="white"
               bg-color="grey-10"
+              placeholder="Search available events"
             >
               <template v-slot:prepend>
                 <q-icon name="search"></q-icon>
@@ -37,25 +38,27 @@
           </q-form>
           <!-- LINKS -->
           <div class="row q-gutter-md items-center">
-            <router-link to="/about" class="text-light fn-link">
-              About
-            </router-link>
             <router-link to="/events" class="text-light fn-link">
               Events
             </router-link>
-            <router-link to="/organize" class="text-light fn-link">
-              Organize
+            <router-link to="/about" class="text-light fn-link">
+              About
+            </router-link>
+            <router-link to="/organize" class="text-secondary fn-link">
+              Host
             </router-link>
             <!-- AUTH -->
 
-            <router-link
-              to="/"
+            <q-btn
               v-if="!currentUser"
               @click="near?.signIn"
               class="text-light fn-link"
+              no-caps
+              flat
+              outline
             >
               <b>Login</b>
-            </router-link>
+            </q-btn>
             <div v-else>
               <q-btn
                 class="q-my-none fn-md fn-link"
@@ -69,7 +72,7 @@
                     <q-item clickable v-close-popup class="column">
                       <q-item-section class="fn-sm">
                         <router-link to="/my-events" class="text-light fn-link">
-                          My Events
+                          My events
                         </router-link>
                       </q-item-section>
                     </q-item>
@@ -80,7 +83,7 @@
                       class="column"
                       @click="currentUser.signOut"
                     >
-                      <q-item-section class="fn-sm">Logout</q-item-section>
+                      <q-item-section class="fn-sm">Sign out</q-item-section>
                     </q-item>
                   </q-list>
                 </q-menu>
@@ -108,16 +111,16 @@
             <div class="row q-gutter-md">
               <!-- <div>Twitter</div>
               <div>Instagram</div> -->
-              <div>Discord</div>
+              <!-- <div>Discord</div> -->
             </div>
           </div>
           <q-space />
           <div class="column q-col-gutter-sm">
             <div class="row justify-end q-gutter-md">
-              <div>This project is in public alpha</div>
+              <!-- <div>This project is in public alpha</div> -->
             </div>
             <div class="row justify-end q-gutter-md">
-              <div>2022 Events<b>NEAR</b>us | Powered by NEAR</div>
+              <div>Assembled in 2022 during <b>NEAR</b> MetaBUILD</div>
             </div>
           </div>
         </q-toolbar>

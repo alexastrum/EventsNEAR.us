@@ -1,8 +1,17 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { isFunction } from '@vue/shared';
+import { isFunction, isPlainObject } from '@vue/shared';
 import { SWRVCache } from 'swrv';
 import { markRaw, reactive, Ref, toRefs, UnwrapRef, watchEffect } from 'vue';
+
+// Minimal reimplementation of SWR for Vue3
+
+export function markRawSafe<T>(obj: T): T {
+  if (!obj || !isPlainObject(obj)) {
+    return obj;
+  }
+  return markRaw(obj);
+}
 
 export const defaultCache = new SWRVCache<CacheItem<unknown, unknown>>();
 export const refCounts = new Map<string, number>();
@@ -183,11 +192,7 @@ export function useSWRV<D, K extends SWRVKey, E = Error>(
 
         unsubscribe = await observable({
           next: (next) => {
-            const rawData = (
-              typeof next === 'object'
-                ? markRaw(next as unknown as object)
-                : next
-            ) as UnwrapRef<D>;
+            const rawData = markRawSafe(next) as UnwrapRef<D>;
             result.data = rawData;
             result.error = undefined;
             result.isValidating = false;
@@ -201,9 +206,7 @@ export function useSWRV<D, K extends SWRVKey, E = Error>(
             errorRetryCount = -1;
           },
           error: (error) => {
-            const rawError = (
-              error ? markRaw(error as unknown as object) : error
-            ) as UnwrapRef<E>;
+            const rawError = markRawSafe(error) as UnwrapRef<E>;
             result.error = rawError;
             result.isValidating = false;
             if (cachedResult) {
@@ -236,9 +239,7 @@ export function useSWRV<D, K extends SWRVKey, E = Error>(
           },
         });
       } catch (error) {
-        const rawError = (
-          error ? markRaw(error as object) : error
-        ) as UnwrapRef<E>;
+        const rawError = markRawSafe(error as object) as UnwrapRef<E>;
         result.error = rawError;
         result.isValidating = false;
         if (cachedResult) {
@@ -278,11 +279,9 @@ export async function mutate<D, K extends SWRVKey = SWRVKey, E = Error>(
       });
 
   try {
-    cachedResult.data = data
-      ? markRaw((await data) as unknown as object)
-      : data;
+    cachedResult.data = markRawSafe(await data);
   } catch (error) {
-    cachedResult.error = error ? markRaw(error as object) : error;
+    cachedResult.error = markRawSafe(error);
   }
   cache.set(hash, cachedResult, ttl);
 }

@@ -27,25 +27,31 @@ export function useDownloadUrl(path: () => string) {
 }
 
 export function useFirebaseDB<D>(path: () => string = () => '') {
-  return useSWRV<D | undefined, string | (() => [string])>(
-    () => [path()],
-    getFirebaseDBObservable
-  );
+  return useSWRV<D | undefined, string | (() => [string] | undefined)>(() => {
+    const p = path();
+    return p ? [p] : undefined;
+  }, getFirebaseDBObservable);
 }
 
-export function useFirestoreDoc<D>(collection: string, docId: () => string) {
-  return useSWRV<D | undefined, () => [string, string]>(
-    () => [collection, docId()],
-    getFirestoreDocObservable
-  );
+export function useFirestoreDoc<D>(
+  collection: string,
+  docId: () => string | undefined
+) {
+  return useSWRV<D | undefined, () => [string, string] | undefined>(() => {
+    const id = docId();
+    return id ? [collection, id] : undefined;
+  }, getFirestoreDocObservable);
 }
 
 export function useFirestoreCollection<D>(
   collection: string,
-  query: () => FirestoreQuery<D> = () => ({})
+  query: () => FirestoreQuery<D> | undefined = () => ({})
 ) {
-  return useSWRV<Map<string, D> | undefined, () => [string, FirestoreQuery<D>]>(
-    () => [collection, query()],
-    getFirestoreCollectionObservable
-  );
+  return useSWRV<
+    Map<string, D> | undefined,
+    () => [string, FirestoreQuery<D>] | undefined
+  >(() => {
+    const q = query();
+    return q ? [collection, q] : undefined;
+  }, getFirestoreCollectionObservable);
 }

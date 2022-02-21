@@ -5,7 +5,12 @@ import {
 } from 'near-api-js/lib/key_stores';
 import { NearConfig } from 'near-api-js/lib/near';
 import { ContractMethods } from 'near-api-js/lib/contract';
-import { FirebaseUser, httpsCallable, signInWithCustomToken } from './firebase';
+import {
+  FirebaseUser,
+  httpsCallable,
+  signInWithCustomToken,
+  signOut,
+} from './firebase';
 import { mutate } from 'src/hooks/swrv';
 
 export const CONTRACT_NAME: ContractId = 'aloin';
@@ -174,9 +179,10 @@ export async function getCurrentUser(
         balance: (await wallet.account().state()).amount, // account().getAccountBalance().available
         signMessage,
         verifySignature,
-        signOut: () => {
+        signOut: async () => {
+          await signOut();
           wallet.signOut();
-          location.reload();
+          location.href = '/';
         },
       }
     : undefined;

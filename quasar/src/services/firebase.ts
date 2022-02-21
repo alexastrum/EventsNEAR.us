@@ -14,6 +14,10 @@ export async function signInWithCustomToken(token: string) {
   return firebase.auth().signInWithCustomToken(token);
 }
 
+export async function signOut() {
+  return firebase.auth().signOut();
+}
+
 export function httpsCallable<D, R>(
   name: string,
   options?: firebase.functions.HttpsCallableOptions
@@ -72,7 +76,7 @@ export function getFirestoreDocObservable<D>(
   };
 }
 
-export interface FirestoreQuery<D> {
+export type FirestoreQuery<D> = {
   where?: [
     // Single field condition
     (keyof D & string) | firebase.firestore.FieldPath,
@@ -85,7 +89,7 @@ export interface FirestoreQuery<D> {
     firebase.firestore.OrderByDirection
   ];
   limit?: number;
-}
+};
 
 export function getFirestoreCollectionObservable<D>(
   collectionPath: string,
