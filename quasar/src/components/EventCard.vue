@@ -1,5 +1,14 @@
 <template>
-  <router-link :to="id ? `/event/${id}` : '/'" class="fn-link cursor-pointer">
+  <router-link
+    :to="id && !showTickets ? `/event/${id}` : ''"
+    @click="
+      () => {
+        showTickets && openTicketPrompt();
+      }
+    "
+    class="fn-link cursor-pointer"
+    :class="extend ? 'col' : ''"
+  >
     <q-card v-if="small || smaller" bordered dark flat class="fit bg-lightdark">
       <div class="fit">
         <div class="row q-pa-md items-center">
@@ -20,24 +29,29 @@
                 :width="smaller ? '90px' : '120px'"
               />
             </div>
-            <div class="col q-ml-md column">
+            <q-item class="col column">
               <h3
                 class="q-my-none q-py-none fn-bold"
                 :class="smaller ? 'fn-md' : 'fn-lg q-mb-sm'"
               >
                 {{ event?.title || 'Untitled event' }}
               </h3>
-              <div :class="smaller ? 'fn-sm' : 'fn-md'">
-                {{ description || event?.description || 'No description' }}
-              </div>
+              <q-item-section :class="smaller ? 'fn-sm' : 'fn-md'">
+                <q-item-label :lines="2">
+                  {{ description || event?.description || 'No description' }}
+                </q-item-label>
+              </q-item-section>
 
-              <div class="row col items-end justify-end text-grey-6">
+              <div
+                class="row col items-end justify-end text-grey-6"
+                :class="smaller ? 'fn-sm' : 'fn-md'"
+              >
                 <template v-if="subtitle">
                   {{ subtitle }}
                 </template>
                 <template v-else> Hosted by {{ event.ownerUid }} </template>
               </div>
-            </div>
+            </q-item>
           </div>
           <!-- SKELETON -->
           <div v-else class="col row q-col-gutter-y-md">
@@ -74,9 +88,12 @@
         <h3 class="q-mt-md q-mb-sm q-py-none fn-lg fn-bold">
           {{ event?.title || 'Untitled event' }}
         </h3>
-        <div class="col fn-md text-light">
-          {{ description || event?.description || 'No description' }}
-        </div>
+        <q-item-section class="col fn-md text-light">
+          <q-item-label :lines="2">
+            {{ description || event?.description || 'No description' }}
+          </q-item-label>
+        </q-item-section>
+
         <div class="text-grey-6 q-mt-lg">
           <template v-if="subtitle">
             {{ subtitle }}
@@ -96,9 +113,11 @@
 </template>
 
 <script lang="ts">
+import { useQuasar } from 'quasar';
 import { useFirestoreDoc } from 'src/hooks/firebase';
 import { defineComponent, PropType } from 'vue';
 import { Event } from '../models';
+import TicketInfo from './TicketInfo.vue';
 
 export default defineComponent({
   name: 'EventCard',
@@ -112,13 +131,22 @@ export default defineComponent({
     subtitle: String,
     description: String,
     event: Object as PropType<Event>,
+    showTickets: Boolean,
   },
   setup(props) {
     const { data: ownerUser } = useFirestoreDoc(
       'users',
       () => props.event?.ownerUid
     );
-    return { ownerUser };
+
+    const $q = useQuasar();
+    const openTicketPrompt = () => {
+      $q.dialog({
+        component: TicketInfo,
+        componentProps: { event: props.event },
+      });
+    };
+    return { ownerUser, openTicketPrompt };
   },
 });
 </script>
