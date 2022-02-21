@@ -143,7 +143,7 @@ export default defineComponent({
     const openTicketPrompt = () => {
       $q.dialog({
         component: TicketInfo,
-        componentProps: { event: props.event },
+        componentProps: { id: props.id, event: props.event },
       });
     };
     return { ownerUser, openTicketPrompt };
