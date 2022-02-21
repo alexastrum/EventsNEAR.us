@@ -9,11 +9,6 @@
         v-model="uploadFile"
         type="file"
         :label="label"
-        :hint="
-          uploadFile
-            ? `Destination: ${path}`
-            : `Current url: ${modelValue || 'empty'}`
-        "
         v-bind="$attrs"
       />
     </q-item-section>

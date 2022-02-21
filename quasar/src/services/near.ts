@@ -53,7 +53,11 @@ export function getContract(
   near: Near,
   wallet: WalletConnection,
   contractId: ContractId,
-  methods: ContractMethods
+  methods: ContractMethods = {
+    viewMethods: ['getMessages'],
+
+    changeMethods: ['addMessage', 'createEvent'],
+  }
 ) {
   const accountId = wallet.getAccountId() as string;
   const nearConfig = near.config as NearConfig;

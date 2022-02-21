@@ -14,6 +14,7 @@
               <q-card bordered dark flat class="bg-lightdark row full-height">
                 <div class="row q-pa-lg q-pb-none full-width">
                   <div class="q-mb-md fn-bold fn-lg">Banner Image</div>
+                  <q-img v-if="form.image" :src="form.image" />
                   <div class="row full-width items-end">
                     <media-input class="col-12" v-model="form.image" />
                   </div>
@@ -22,7 +23,7 @@
             </div>
             <div class="col-5 column">
               <!-- DETAILS -->
-              <q-card bordered dark flat class="bg-lightdark row">
+              <q-card bordered dark flat class="bg-lightdark row col">
                 <div class="q-pa-lg fit fn-lg">
                   <div class="q-mb-md fn-bold">Event Details</div>
                   <div class="row">
@@ -127,6 +128,7 @@
             flat
             class="q-mt-md bg-primary text-grey-4 col q-py-sm"
             label="Create event &amp; mint tickets"
+            @click="createEventAndMint"
           />
         </div>
       </div>
@@ -143,8 +145,8 @@ import NumberInput from 'src/forms/form/NumberInput.vue';
 import TextInput from 'src/forms/form/TextInput.vue';
 import { computed, defineComponent, ref } from 'vue';
 import TextSelectInput from 'src/forms/form/TextSelectInput.vue';
-import { useFirebaseDB } from 'src/hooks/firebase';
-import { useCurrentUser } from 'src/hooks/near';
+import { useFirebaseDB, useFirestoreCollection } from 'src/hooks/firebase';
+import { useCurrentUser, useNearContract } from 'src/hooks/near';
 
 import firebase from 'firebase';
 import 'firebase/firestore';
@@ -209,7 +211,19 @@ export default defineComponent({
       allUsers.value = snap.docs.map((snap) => snap.id);
     });
 
-    // TODO: Save
+    // saving
+    const { data: contract } = useNearContract();
+    const createEventAndMint = async () => {
+      const event = await fs.collection('events').add({
+        title: form.value.title,
+        description: form.value.description,
+        tags: form.value.tags,
+        image: form.value.image,
+      });
+
+      // contract.value.contract.createEvent({ eventId: event.id });
+      console.log(event.id);
+    };
 
     return {
       form,
@@ -219,6 +233,7 @@ export default defineComponent({
       allUsers,
       tagAdd,
       tagOptions,
+      createEventAndMint,
     };
   },
 });
