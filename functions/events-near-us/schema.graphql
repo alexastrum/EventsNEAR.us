@@ -1,0 +1,12 @@
+type ExampleEntity @entity {
+  id: ID!
+  block: Bytes!
+  count: BigInt!
+}
+
+type EventEntity @entity {
+  id: ID!
+  block: Bytes!
+  tickets: BigInt!
+  count: BigInt!
+}
