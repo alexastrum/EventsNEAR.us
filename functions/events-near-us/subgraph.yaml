@@ -1,0 +1,19 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: near
+    name: Contract
+    network: near-testnet
+    source:
+      account: "eventsnearus.testnet"
+      startBlock: 83380372
+    mapping:
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ExampleEntity
+        - EventEntity
+      receiptHandlers:
+        - handler: handleReceipt
+      file: ./src/mapping.ts
