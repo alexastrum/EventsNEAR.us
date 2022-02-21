@@ -3,15 +3,10 @@
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
-    "build": "yarn build:contract",
-    "build:contract": "asb",
-    "build:contract:debug": "asb --target debug",
-    "deploy": "yarn build && near deploy",
+    "build": "asb --target debug",
+    "deploy": "near deploy --accountId eventsnearus.testnet --wasmFile out/main.wasm -f",
     "dev": "yarn build:contract:debug && near dev-deploy && nodemon --watch assembly -e ts --exec yarn dev:start",
-    "lint": "eslint \"./**/*.js\" \"./**/*.jsx\"",
-    "start": "yarn deploy && parcel ../quasar/dist/spa/index.html",
-    "dev:start": "env-cmd -f ./neardev/dev-account.env echo 'TODO: web server integration'",
-    "test": "yarn build:contract:debug && asp && jest"
+    "start": "yarn build && yarn deploy && near call --accountId eventsnearus.testnet eventsnearus.testnet createEvent '{\"eventId\":\"test\"}' --deposit 0.000000000000000000000001"
   },
   "devDependencies": {
     "@babel/core": "^7.14.0",

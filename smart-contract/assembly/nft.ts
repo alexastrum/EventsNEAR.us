@@ -68,7 +68,7 @@ export class PersistentNFT {
     protected metadata: NFTContractMetadata,
     private xcc_gas: u64 = XCC_GAS
   ) {
-    this.tokenOwners = new PersistentMap(prefix + "#");
+    this.tokenOwners = new PersistentMap(prefix + "Owner");
     this.tokens = new PersistentVector(prefix);
   }
 
@@ -79,6 +79,7 @@ export class PersistentNFT {
   protected mint(id: string, owner_id: AccountId = context.predecessor): void {
     assert(!this.tokenOwners.contains(id), "token id not unique");
 
+    logging.log("Minting token " + id);
     this.setTokenOwner(id, owner_id);
     this.tokens.push(id);
   }

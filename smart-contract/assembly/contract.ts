@@ -1,7 +1,6 @@
 import {
   context,
   u128,
-  PersistentVector,
   PersistentMap,
   ContractPromiseBatch,
 } from "near-sdk-as";
@@ -62,10 +61,10 @@ export class NFTContract extends PersistentNFT {
 
   constructor(metadata: NFTContractMetadata) {
     metadata.reference = metadata.base_uri;
-    super("O", metadata);
-    this.events = new PersistentMap("E");
-    this.tiers = new PersistentMap("T");
-    this.tickets = new PersistentMap("K");
+    super("Token", metadata);
+    this.events = new PersistentMap("Event");
+    this.tiers = new PersistentMap("Tier");
+    this.tickets = new PersistentMap("Ticket");
   }
 
   nft_metadata(): NFTContractMetadata {

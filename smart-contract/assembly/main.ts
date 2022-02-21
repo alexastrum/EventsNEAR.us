@@ -112,7 +112,7 @@ export function nft_transfer_payout(
 
 export function createEvent(
   eventId: string,
-  event: Event,
+  event: Event = <Event>{},
   tickets: CreateEvent_Tier[] = [<CreateEvent_Tier>{}]
 ): void {
   contract.createEvent(eventId, event, tickets);
