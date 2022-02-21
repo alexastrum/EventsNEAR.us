@@ -4,6 +4,7 @@ import {
   env,
   logging,
   PersistentMap,
+  PersistentVector,
 } from "near-sdk-as";
 
 const XCC_GAS: u64 = 30_000_000_000_000;
@@ -51,6 +52,13 @@ export class Token {
 @nearBindgen
 export class PersistentNFT {
   protected tokenOwners: PersistentMap<string, string>;
+
+  // TODO: https://nomicon.io/Standards/NonFungibleToken/Enumeration
+  protected tokens: PersistentVector<string>;
+
+  // TODO: https://nomicon.io/Standards/NonFungibleToken/Payout
+  // Not sure {payout: HashMap} return value is supported by NEAR AS SDK
+  // Payout should be up to `tier.price + small fee to cover gas and inetrest` to current owner; balance to `event.owner`
 
   constructor(prefix: string, private xcc_gas: u64 = XCC_GAS) {
     this.tokenOwners = new PersistentMap(prefix);

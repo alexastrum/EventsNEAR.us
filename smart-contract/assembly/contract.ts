@@ -91,6 +91,9 @@ export class NFTContract extends PersistentNFT {
       metadata.extra = "{price: " + tier.price.toString() + "}";
 
       const ticket = this.tickets.getSome(token_id);
+      if (ticket.copies > 1) {
+        metadata.title += " x " + ticket.copies.toString();
+      }
       if (ticket.expires_at) {
         metadata.expires_at = ticket.expires_at;
       }
