@@ -115,17 +115,14 @@ export class PersistentNFT {
     return owner_id;
   }
 
-  protected setTokenOwner(
-    token_id: string,
-    new_owner_id: AccountId
-  ): AccountId {
+  protected setTokenOwner(token_id: string, new_owner_id: AccountId): void {
     assert(env.isValidAccountID(new_owner_id), "new_owner_id not valid");
 
-    // TODO: Track token ownership
-
-    const previous_owner_id = this.tokenOwners.getSome(token_id);
+    const previous_owner_id = this.tokenOwners.get(token_id);
     this.tokenOwners.set(token_id, new_owner_id);
-    return previous_owner_id;
+    if (previous_owner_id) {
+      // TODO: Track token ownership
+    }
   }
 
   // Simple transfer. Transfer a given `token_id` from current owner to
