@@ -13,7 +13,7 @@ import {
 } from './firebase';
 import { mutate } from 'src/hooks/swrv';
 
-export const CONTRACT_NAME: ContractId = 'aloin';
+export const CONTRACT_NAME: ContractId = 'eventsnearus';
 
 export function getConfig(): NearConfig {
   if (process.env.PROD) {
@@ -55,8 +55,7 @@ export function getContract(
   contractId: ContractId,
   methods: ContractMethods = {
     viewMethods: ['getMessages'],
-
-    changeMethods: ['addMessage', 'createEvent'],
+    changeMethods: ['createEvent'],
   }
 ) {
   const accountId = wallet.getAccountId() as string;

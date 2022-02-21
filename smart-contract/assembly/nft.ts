@@ -151,7 +151,7 @@ export class PersistentNFT {
     approval_id: u64 = 0, // not used
     memo: string = "" // not used
   ): void {
-    oneYocto();
+    //oneYocto();
 
     const sender_id = context.predecessor;
     this.transferOwnToken(sender_id, receiver_id, token_id);
@@ -199,7 +199,7 @@ export class PersistentNFT {
     memo: string = "", // not used
     msg: string = ""
   ): void {
-    oneYocto();
+    //oneYocto();
 
     const sender_id = context.predecessor;
     const previous_owner_id = this.transferOwnToken(

@@ -146,7 +146,7 @@ import TextInput from 'src/forms/form/TextInput.vue';
 import { computed, defineComponent, ref } from 'vue';
 import TextSelectInput from 'src/forms/form/TextSelectInput.vue';
 import { useFirebaseDB } from 'src/hooks/firebase';
-import { useCurrentUser } from 'src/hooks/near';
+import { useCurrentUser, useNearContract } from 'src/hooks/near';
 
 import firebase from 'firebase';
 import 'firebase/firestore';
@@ -212,7 +212,7 @@ export default defineComponent({
     });
 
     // saving
-    // const { data: contract } = useNearContract();
+    const { data: contract } = useNearContract();
     const createEventAndMint = async () => {
       const event = await fs.collection('events').add({
         title: form.value.title,
@@ -221,7 +221,21 @@ export default defineComponent({
         image: form.value.image,
       });
 
-      // contract.value.contract.createEvent({ eventId: event.id });
+      // eslint-disable-next-line
+      const bridge = contract.value.contract as any;
+      // eslint-disable-next-line
+      console.log(bridge.createEvent({ eventId: event.id }));
+      // console.log(
+      //   near.value.wallet
+      //     .account()
+      //     .functionCall(
+      //       'eventsnearus.testnet',
+      //       'createEvent',
+      //       { eventId: event.id },
+      //       '200000000000000',
+      //       0.000000000000000000000001
+      //     )
+      // );
       console.log(event.id);
     };
 

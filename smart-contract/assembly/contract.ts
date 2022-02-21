@@ -111,7 +111,7 @@ export class NFTContract extends PersistentNFT {
     event: Event,
     tickets: CreateEvent_Tier[]
   ): void {
-    oneYocto();
+    //oneYocto();
 
     this.mint(eventId, context.predecessor);
     const issued_at = context.blockTimestamp % <u64>1_000_000;
@@ -137,7 +137,7 @@ export class NFTContract extends PersistentNFT {
   }
 
   listForSale(ticketId: string, quantity: u32): u32 {
-    oneYocto();
+    //oneYocto();
     this.predecesorIsOwner(ticketId);
 
     const ticket = this.tickets.getSome(ticketId);
@@ -235,7 +235,7 @@ export class NFTContract extends PersistentNFT {
   }
 
   invalidate(ticketId: string): void {
-    oneYocto();
+    //oneYocto();
 
     const eventId = getEventId(ticketId);
     const eventOwnerId = this.tokenOwners.getSome(eventId);
@@ -272,7 +272,7 @@ export class NFTContract extends PersistentNFT {
   }
 
   reactivate(ticketId: string): void {
-    oneYocto();
+    //oneYocto();
 
     const eventId = getEventId(ticketId);
     const eventOwnerId = this.tokenOwners.getSome(eventId);
