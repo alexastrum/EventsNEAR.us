@@ -1,66 +1,58 @@
 import { context } from "near-sdk-as";
-import {
-  PostedMessage,
-  messages,
-  Event,
-  Ticket,
-  events,
-  tickets,
-} from "./model";
+import { createEvent_Tier, NFTContract } from "./contract";
+import { PersistentLottery } from "./lottery";
 
 // --- contract code goes below
 
+const contract = new NFTContract({
+  spec: "nft-1.0.0",
+  name: "EventsNEAR.us",
+  symbol: "EVNS",
+  icon: "",
+  base_uri: "https://eventsnear.us/api/nft",
+  reference: "",
+  reference_hash: "",
+});
+
 export function createEvent(
+  id: string,
   title: string,
-  ticketPrice: string[],
-  ticketOwners: {
-    accountId: string;
-    quantity: u32;
-  }[]
+  description: string,
+  tickets: createEvent_Tier[]
 ): void {
-  const event = new Event(context.sender, title, ticketPrice);
-  events.set("id", event);
-  tickets.set("id", new Ticket());
-  // new Ticket();
+  contract.createEvent(id, title, description, "", 0, "", tickets);
 }
 
-export function transfer(ticketId: string, recipientAccountId: string): void {}
+// TODO: Expose NEP-171 APIs
 
-export function listForSale(ticketId: string): void {}
-
-export function unlistForSale(ticketId: string): void {}
-
-export function buy(ticketId: string): void {}
-
-export function scan(ticketId: string): void {}
-
-export function unscan(ticketId: string): void {}
-
-// The maximum number of latest messages the contract returns.
-const MESSAGE_LIMIT = 10;
-
-/**
- * Adds a new message under the name of the sender's account id.\
- * NOTE: This is a change method. Which means it will modify the state.\
- * But right now we don't distinguish them with annotations yet.
- */
-export function addMessage(text: string): void {
-  // Creating a new message and populating fields with our data
-  const message = new PostedMessage(text);
-  // Adding the message to end of the persistent collection
-  messages.push(message);
+export function transfer(receiverId: string, ticketId: string): void {
+  contract.nft_transfer(receiverId, ticketId, 0, "");
 }
 
-/**
- * Returns an array of last N messages.\
- * NOTE: This is a view method. Which means it should NOT modify the state.
- */
-export function getMessages(): PostedMessage[] {
-  const numMessages = min(MESSAGE_LIMIT, messages.length);
-  const startIndex = messages.length - numMessages;
-  const result = new Array<PostedMessage>(numMessages);
-  for (let i = 0; i < numMessages; i++) {
-    result[i] = messages[i + startIndex];
-  }
-  return result;
+export function listForSale(ticketId: string): void {
+  contract.listForSale(ticketId, 1);
+}
+
+export function unlistForSale(ticketId: string): void {
+  contract.listForSale(ticketId, 0);
+}
+
+export function buy(ticketId: string): void {
+  contract.buy(ticketId, 1);
+}
+
+export function scan(ticketId: string): void {
+  contract.invalidate(ticketId);
+}
+
+export function unscan(ticketId: string): void {
+  contract.reactivate(ticketId);
+}
+
+export function buyLotteryTicket(tierId: string): void {
+  contract.buyLotteryTicket(tierId);
+}
+
+export function giveUpLottery(tierId: string): void {
+  contract.giveUpLottery(tierId);
 }

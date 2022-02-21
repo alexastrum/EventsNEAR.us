@@ -6395,7 +6395,7 @@ near-mock-vm@^3.2.2:
     "@assemblyscript/loader" "^0.18.9"
     yargs "^16.2.0"
 
-near-sdk-as@3.2.3:
+near-sdk-as@^3.2.3:
   version "3.2.3"
   resolved "https://registry.yarnpkg.com/near-sdk-as/-/near-sdk-as-3.2.3.tgz#95f3dec1b38e542cd8f4347849147446586ee02f"
   integrity sha512-Msvmf8oRPathLjks9IzchQj8b8B4C8LS7O16WaaLj2dWT57TpDXLuizpABG7FwkqJ4oiZp5huoS9iWJjZrbBRg==
