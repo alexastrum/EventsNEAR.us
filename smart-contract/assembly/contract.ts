@@ -9,36 +9,36 @@ import { PersistentLottery } from "./lottery";
 import { NFTContractMetadata, PersistentNFT, TokenMetadata } from "./nft";
 
 @nearBindgen
-class EventData {
-  title: string; // ex. "Arch Nemesis: Mail Carrier" or "Parcel #5055"
-  description: string; // free-form description
-  media_hash: string; // Base64-encoded sha256 hash of content referenced by the `media` field. Required if `media` is included.
-  issued_at: u64; // When token was issued or minted, Unix epoch in milliseconds
-  starts_at: u64; // When token starts being valid, Unix epoch in milliseconds
-  reference_hash: string; // Base64-encoded sha256 hash of JSON from reference field. Required if `reference` is included.
+class Event {
+  title: string = ""; // ex. "Arch Nemesis: Mail Carrier" or "Parcel #5055"
+  description: string = ""; // free-form description
+  media_hash: string = ""; // Base64-encoded sha256 hash of content referenced by the `media` field. Required if `media` is included.
+  issued_at: u64 = 0; // When token was issued or minted, Unix epoch in milliseconds
+  starts_at: u64 = 0; // When token starts being valid, Unix epoch in milliseconds
+  reference_hash: string = ""; // Base64-encoded sha256 hash of JSON from reference field. Required if `reference` is included.
 }
 
 @nearBindgen
 class Tier {
-  title: string; // free-form description
-  issued_at: u64; // When token was issued or minted, Unix epoch in milliseconds
-  copies: u32;
-  price: u128;
+  title: string = ""; // free-form description
+  issued_at: u64 = 0; // When token was issued or minted, Unix epoch in milliseconds
+  copies: u32 = 1;
+  price: u128 = u128.Zero;
 }
 
 @nearBindgen
 class Ticket {
-  copies: u32;
-  forSale: u32;
-  expires_at: u64; // When token expires, Unix epoch in milliseconds
+  copies: u32 = 1;
+  forSale: u32 = 0;
+  expires_at: u64 = 0; // When token expires, Unix epoch in milliseconds
 }
 
 @nearBindgen
 export class createEvent_Tier {
-  quantity: u32;
-  description: string;
-  recipientId: string;
-  price: u128;
+  quantity: u32 = 1;
+  description: string = "";
+  recipientId: string = context.predecessor;
+  price: u128 = u128.Zero;
 }
 
 function getEventId(ticketId: string): string {
@@ -53,7 +53,7 @@ function getTierId(ticketId: string): string {
 
 @nearBindgen
 export class NFTContract extends PersistentNFT {
-  private events: PersistentMap<string, EventData>;
+  private events: PersistentMap<string, Event>;
   private tiers: PersistentMap<string, Tier>;
   private tickets: PersistentMap<string, Ticket>;
 
@@ -72,7 +72,12 @@ export class NFTContract extends PersistentNFT {
   protected getMetadata(token_id: string): TokenMetadata | null {
     const eventId = token_id.split("/")[0];
     const event = this.events.getSome(eventId);
-    const metadata: any = event;
+    const metadata = <TokenMetadata>{
+      title: event.title,
+      description: event.description,
+      starts_at: event.starts_at,
+      media_hash: event.media_hash,
+    };
     metadata.reference = this.metadata.base_uri + "/" + token_id;
     if (metadata.media_hash) {
       metadata.media = metadata.reference + ":media";
@@ -84,9 +89,7 @@ export class NFTContract extends PersistentNFT {
       if (tier.title) {
         metadata.title += " - " + tier.title;
       }
-      if (tier.issued_at) {
-        metadata.issued_at = tier.issued_at;
-      }
+      metadata.issued_at = tier.issued_at;
       metadata.copies = tier.copies;
       metadata.extra = "{price: " + tier.price.toString() + "}";
 
@@ -94,12 +97,8 @@ export class NFTContract extends PersistentNFT {
       if (ticket.copies > 1) {
         metadata.title += " x " + ticket.copies.toString();
       }
-      if (ticket.expires_at) {
-        metadata.expires_at = ticket.expires_at;
-      }
-      // if (ticket.updated_at) {
-      //   metadata.updated_at = ticket.updated_at;
-      // }
+      metadata.expires_at = ticket.expires_at;
+      // metadata.updated_at = ticket.updated_at;
     }
 
     return metadata;
