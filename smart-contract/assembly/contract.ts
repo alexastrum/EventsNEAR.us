@@ -6,10 +6,16 @@ import {
   ContractPromiseBatch,
 } from "near-sdk-as";
 import { PersistentLottery } from "./lottery";
-import { NFTContractMetadata, PersistentNFT, TokenMetadata } from "./nft";
+import {
+  AccountId,
+  NFTContractMetadata,
+  Payout,
+  PersistentNFT,
+  TokenMetadata,
+} from "./nft";
 
 @nearBindgen
-class Event {
+export class Event {
   title: string = ""; // ex. "Arch Nemesis: Mail Carrier" or "Parcel #5055"
   description: string = ""; // free-form description
   media_hash: string = ""; // Base64-encoded sha256 hash of content referenced by the `media` field. Required if `media` is included.
@@ -19,7 +25,7 @@ class Event {
 }
 
 @nearBindgen
-class Tier {
+export class Tier {
   title: string = ""; // free-form description
   issued_at: u64 = 0; // When token was issued or minted, Unix epoch in milliseconds
   copies: u32 = 1;
@@ -27,18 +33,15 @@ class Tier {
 }
 
 @nearBindgen
-class Ticket {
+export class Ticket {
   copies: u32 = 1;
-  forSale: u32 = 0;
+  for_sale: u32 = 0;
   expires_at: u64 = 0; // When token expires, Unix epoch in milliseconds
 }
 
 @nearBindgen
-export class createEvent_Tier {
-  quantity: u32 = 1;
-  description: string = "";
+export class CreateEvent_Tier extends Tier {
   recipientId: string = context.predecessor;
-  price: u128 = u128.Zero;
 }
 
 function getEventId(ticketId: string): string {
@@ -57,9 +60,9 @@ export class NFTContract extends PersistentNFT {
   private tiers: PersistentMap<string, Tier>;
   private tickets: PersistentMap<string, Ticket>;
 
-  constructor(private metadata: NFTContractMetadata) {
+  constructor(metadata: NFTContractMetadata) {
     metadata.reference = metadata.base_uri;
-    super("O");
+    super("O", metadata);
     this.events = new PersistentMap("E");
     this.tiers = new PersistentMap("T");
     this.tickets = new PersistentMap("K");
@@ -105,41 +108,30 @@ export class NFTContract extends PersistentNFT {
   }
 
   createEvent(
-    id: string,
-    title: string,
-    description: string,
-    media_hash: string,
-    starts_at: u64, // When token starts being valid, Unix epoch in milliseconds
-    reference_hash: string,
-    tickets: createEvent_Tier[]
+    eventId: string,
+    event: Event,
+    tickets: CreateEvent_Tier[]
   ): void {
     oneYocto();
 
-    this.mint(id, context.predecessor);
-    const issued_at = div<u64>(context.blockTimestamp, 1_000_000);
-    this.events.set(id, {
-      title,
-      description,
-      media_hash,
-      starts_at,
-      reference_hash,
-      issued_at,
-    });
+    this.mint(eventId, context.predecessor);
+    const issued_at = context.blockTimestamp % <u64>1_000_000;
+    this.events.set(eventId, event);
 
     for (let i = 0; i < tickets.length; i++) {
-      const ticket = tickets[i];
-      const tierId = id + "/" + i.toString();
+      const tier = tickets[i];
+      const tierId = eventId + "/" + i.toString();
       const ticketId = tierId + "/0";
-      this.mint(ticketId, ticket.recipientId);
+      this.mint(ticketId, tier.recipientId);
       this.tiers.set(tierId, {
-        title: ticket.description,
+        title: tier.title,
         issued_at,
-        copies: ticket.quantity,
-        price: ticket.price,
+        copies: tier.copies,
+        price: tier.price,
       });
       this.tickets.set(ticketId, {
-        copies: ticket.quantity,
-        forSale: ticket.price ? ticket.quantity : 0,
+        copies: tier.copies,
+        for_sale: tier.price ? tier.copies : 0,
         expires_at: 0,
       });
     }
@@ -163,7 +155,7 @@ export class NFTContract extends PersistentNFT {
       }
     }
 
-    ticket.forSale = quantity;
+    ticket.for_sale = quantity;
     this.tickets.set(ticketId, ticket);
   }
 
@@ -187,7 +179,7 @@ export class NFTContract extends PersistentNFT {
     const tierId = getTierId(ticketId);
     const ticket = this.tickets.getSome(ticketId);
     assert(quantity <= ticket.copies, "Insufficient seller owned tickets");
-    assert(quantity <= ticket.forSale, "Insufficient forSale tickets");
+    assert(quantity <= ticket.for_sale, "Insufficient forSale tickets");
 
     const previous_owner_id = this.tokenOwners.getSome(ticketId);
     assert(
@@ -202,17 +194,17 @@ export class NFTContract extends PersistentNFT {
       this.mint(newTicketId, buyerId);
       this.tickets.set(newTicketId, {
         copies: ticket.copies - quantity,
-        forSale: ticket.forSale - quantity,
+        for_sale: ticket.for_sale - quantity,
         expires_at: 0,
       });
     }
 
     // Transfer ownership of original ticket batch
-    this.tokenOwners.set(ticketId, buyerId);
+    this.setTokenOwner(ticketId, buyerId);
 
     // Take sold tickets off market
     ticket.copies = quantity;
-    ticket.forSale = 0;
+    ticket.for_sale = 0;
     this.tickets.set(ticketId, ticket);
 
     // Pay previous owner
@@ -255,8 +247,8 @@ export class NFTContract extends PersistentNFT {
     const ticket = this.tickets.getSome(ticketId);
     assert(!ticket.expires_at, "Ticket already invalidated");
 
-    if (ticket.forSale > 0) {
-      ticket.forSale--;
+    if (ticket.for_sale > 0) {
+      ticket.for_sale--;
     }
 
     if (ticket.copies > 1) {
@@ -268,11 +260,11 @@ export class NFTContract extends PersistentNFT {
       this.mint(newTicketId, owner_id);
       this.tickets.set(newTicketId, {
         copies: ticket.copies - 1,
-        forSale: ticket.forSale,
+        for_sale: ticket.for_sale,
         expires_at: 0,
       });
       ticket.copies = 1;
-      ticket.forSale = 0;
+      ticket.for_sale = 0;
     }
 
     ticket.expires_at = context.blockTimestamp / 1_000_000;
@@ -294,5 +286,33 @@ export class NFTContract extends PersistentNFT {
 
     ticket.expires_at = 0;
     this.tickets.set(ticketId, ticket);
+  }
+
+  nft_payout(
+    token_id: string,
+    balance: u128,
+    max_len_payout: u32 = 10
+  ): Payout {
+    const eventId = getEventId(token_id);
+    const isTicket = eventId !== token_id;
+    if (!isTicket) {
+      return super.nft_payout(token_id, balance, max_len_payout);
+    }
+
+    const tierId = getTierId(token_id);
+    const tier = this.tiers.getSome(tierId);
+    if (balance <= tier.price) {
+      return super.nft_payout(token_id, balance, max_len_payout);
+    }
+
+    // Anti-scalping: Limit max payout to an event ticket owner to ticket face value.
+    const ticketOwnerId = this.tokenOwners.getSome(token_id);
+    const eventOwnerId = this.tokenOwners.getSome(token_id);
+    const payout = new Map<AccountId, u128>();
+    payout.set(ticketOwnerId, tier.price);
+    payout.set(eventOwnerId, u128.sub(balance, tier.price));
+    return {
+      payout,
+    };
   }
 }

@@ -1,5 +1,6 @@
-import { createEvent_Tier, NFTContract } from "./contract";
-import { NFTContractMetadata, Token } from "./nft";
+import { u128 } from "near-sdk-as";
+import { CreateEvent_Tier, Event, NFTContract } from "./contract";
+import { AccountId, NFTContractMetadata, Payout, Token } from "./nft";
 
 const contract = new NFTContract(<NFTContractMetadata>{
   name: "EventsNEAR.us",
@@ -10,12 +11,12 @@ const contract = new NFTContract(<NFTContractMetadata>{
 // --- NEP-171
 
 export function nft_transfer(
-  receiverId: string,
-  ticketId: string,
+  receiver_id: string,
+  token_id: string,
   approval_id: u32 = 0,
   memo: string = ""
 ): void {
-  contract.nft_transfer(receiverId, ticketId, approval_id, memo);
+  contract.nft_transfer(receiver_id, token_id, approval_id, memo);
 }
 
 export function nft_transfer_call(
@@ -53,23 +54,68 @@ export function nft_metadata(): NFTContractMetadata {
 }
 
 // --- NEP-181
-// TODO
+
+export function nft_total_supply(): u128 {
+  return contract.nft_total_supply();
+}
+
+export function nft_tokens(
+  from_index: string = "0", // default: "0"
+  limit: i32 = 0 // default: unlimited (could fail due to gas limit)
+): Token[] {
+  return contract.nft_tokens(from_index, limit);
+}
+
+export function nft_supply_for_owner(account_id: string): string {
+  return contract.nft_supply_for_owner(account_id);
+}
+
+export function nft_tokens_for_owner(
+  account_id: string,
+  from_index: string = "0",
+  limit: number = 0 // default: unlimited (could fail due to gas limit)
+): Token[] {
+  return contract.nft_tokens_for_owner(account_id, from_index, limit);
+}
 
 // --- NEP-199
-// TODO
+
+export function nft_payout(
+  token_id: string,
+  balance: u128,
+  max_len_payout: u32 = 10
+): Payout {
+  return contract.nft_payout(token_id, balance, max_len_payout);
+}
+
+export function nft_transfer_payout(
+  receiver_id: AccountId,
+  token_id: string,
+  approval_id: u64,
+  balance: u128,
+  max_len_payout: u32 = 10
+): Payout {
+  return contract.nft_transfer_payout(
+    receiver_id,
+    token_id,
+    approval_id,
+    balance,
+    max_len_payout
+  );
+}
 
 // --- NEP-297
-// TODO
+
+// TODO: https://github.com/near/NEPs/blob/master/specs/Standards/EventsFormat.md
 
 // --- EventsNEAR.us APIs
 
 export function createEvent(
-  id: string,
-  title: string,
-  description: string = "",
-  tickets: createEvent_Tier[] = [<createEvent_Tier>{}]
+  eventId: string,
+  event: Event,
+  tickets: CreateEvent_Tier[] = [<CreateEvent_Tier>{}]
 ): void {
-  contract.createEvent(id, title, description, "", 0, "", tickets);
+  contract.createEvent(eventId, event, tickets);
 }
 
 export function listForSale(ticketId: string): void {

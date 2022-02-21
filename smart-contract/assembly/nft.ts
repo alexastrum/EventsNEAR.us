@@ -5,9 +5,12 @@ import {
   logging,
   PersistentMap,
   PersistentVector,
+  u128,
 } from "near-sdk-as";
 
 const XCC_GAS: u64 = 30_000_000_000_000;
+
+export type AccountId = string;
 
 @nearBindgen
 export class NFTContractMetadata {
@@ -46,6 +49,11 @@ export class Token {
   metadata: TokenMetadata | null;
 }
 
+@nearBindgen
+export class Payout {
+  payout: Map<AccountId, u128>;
+}
+
 /**
  * Minimal implementation of NEP-171
  */
@@ -53,21 +61,26 @@ export class Token {
 export class PersistentNFT {
   protected tokenOwners: PersistentMap<string, string>;
 
-  // TODO: https://nomicon.io/Standards/NonFungibleToken/Enumeration
   protected tokens: PersistentVector<string>;
 
-  // TODO: https://nomicon.io/Standards/NonFungibleToken/Payout
-  // Not sure {payout: HashMap} return value is supported by NEAR AS SDK
-  // Payout should be up to `tier.price + small fee to cover gas and inetrest` to current owner; balance to `event.owner`
-
-  constructor(prefix: string, private xcc_gas: u64 = XCC_GAS) {
-    this.tokenOwners = new PersistentMap(prefix);
+  constructor(
+    protected prefix: string,
+    protected metadata: NFTContractMetadata,
+    private xcc_gas: u64 = XCC_GAS
+  ) {
+    this.tokenOwners = new PersistentMap(prefix + "#");
+    this.tokens = new PersistentVector(prefix);
   }
 
-  protected mint(id: string, owner_id: string = context.predecessor): void {
+  nft_metadata(): NFTContractMetadata {
+    return this.metadata;
+  }
+
+  protected mint(id: string, owner_id: AccountId = context.predecessor): void {
     assert(!this.tokenOwners.contains(id), "token id not unique");
 
-    this.tokenOwners.set(id, owner_id);
+    this.setTokenOwner(id, owner_id);
+    this.tokens.push(id);
   }
 
   /**
@@ -90,16 +103,28 @@ export class PersistentNFT {
    * @returns
    */
   protected transferOwnToken(
-    sender_id: string,
-    receiver_id: string,
+    sender_id: AccountId,
+    receiver_id: AccountId,
     token_id: string
-  ): string {
+  ): AccountId {
     const owner_id = this.tokenOwners.getSome(token_id);
     assert(owner_id === sender_id, "sender_id is not the token owner");
-    assert(env.isValidAccountID(receiver_id), "receiver_id not valid");
 
-    this.tokenOwners.set(token_id, receiver_id);
-    return owner_id || "";
+    this.setTokenOwner(token_id, receiver_id);
+    return owner_id;
+  }
+
+  protected setTokenOwner(
+    token_id: string,
+    new_owner_id: AccountId
+  ): AccountId {
+    assert(env.isValidAccountID(new_owner_id), "new_owner_id not valid");
+
+    // TODO: Track token ownership
+
+    const previous_owner_id = this.tokenOwners.getSome(token_id);
+    this.tokenOwners.set(token_id, new_owner_id);
+    return previous_owner_id;
   }
 
   // Simple transfer. Transfer a given `token_id` from current owner to
@@ -123,9 +148,9 @@ export class PersistentNFT {
   // * `memo` (optional): for use cases that may benefit from indexing or
   //    providing information for a transfer
   nft_transfer(
-    receiver_id: string,
+    receiver_id: AccountId,
     token_id: string,
-    approval_id: u32 = 0, // not used
+    approval_id: u64 = 0, // not used
     memo: string = "" // not used
   ): void {
     oneYocto();
@@ -170,9 +195,9 @@ export class PersistentNFT {
   //    order to properly handle the transfer. Can indicate both a function to
   //    call and the parameters to pass to that function.
   nft_transfer_call(
-    receiver_id: string,
+    receiver_id: AccountId,
     token_id: string,
-    approval_id: u32 = 0, // not used
+    approval_id: u64 = 0, // not used
     memo: string = "", // not used
     msg: string = ""
   ): void {
@@ -242,9 +267,10 @@ export class PersistentNFT {
   //   approved accounts and their approval IDs in case of revert.
   //
   // Returns true if token was successfully transferred to `receiver_id`.
+  @contractPrivate()
   nft_resolve_transfer(
-    owner_id: string,
-    receiver_id: string,
+    owner_id: AccountId,
+    receiver_id: AccountId,
     token_id: string,
     approved_account_ids: Map<string, u32> | null
   ): boolean {
@@ -275,6 +301,95 @@ export class PersistentNFT {
 
     return true;
   }
+
+  /// Given a `token_id` and NEAR-denominated balance, return the `Payout`.
+  /// struct for the given token. Panic if the length of the payout exceeds
+  /// `max_len_payout.`
+  nft_payout(
+    token_id: string,
+    balance: u128,
+    max_len_payout: u32 = 10
+  ): Payout {
+    const owner_id = this.tokenOwners.getSome(token_id);
+    const payout = new Map<AccountId, u128>();
+    payout.set(owner_id, balance);
+    return {
+      payout,
+    };
+  }
+
+  /// Given a `token_id` and NEAR-denominated balance, transfer the token
+  /// and return the `Payout` struct for the given token. Panic if the
+  /// length of the payout exceeds `max_len_payout.`
+  nft_transfer_payout(
+    receiver_id: AccountId,
+    token_id: string,
+    approval_id: u64,
+    balance: u128,
+    max_len_payout: u32 = 10
+  ): Payout {
+    this.nft_transfer(receiver_id, token_id, approval_id);
+    return this.nft_payout(token_id, balance, max_len_payout);
+  }
+
+  // Returns the total supply of non-fungible tokens as a string representing an
+  // unsigned 128-bit integer to avoid JSON number limit of 2^53; and "0" if there are no tokens.
+  nft_total_supply(): u128 {
+    return u128.from(this.tokens.length);
+  }
+
+  // Get a list of all tokens
+  //
+  // Arguments:
+  // * `from_index`: a string representing an unsigned 128-bit integer,
+  //    representing the starting index of tokens to return
+  // * `limit`: the maximum number of tokens to return
+  //
+  // Returns an array of Token objects, as described in Core standard, and an empty array if there are no tokens
+  nft_tokens(
+    from_index: string = "0",
+    limit: i32 = 0 // default: unlimited (could fail due to gas limit)
+  ): Token[] {
+    let result = new Array<Token>();
+    const n = limit ? min(limit, this.tokens.length) : this.tokens.length;
+    for (let i = from_index ? I32.parseInt(from_index) : 0; i < n; i++) {
+      const token = this.nft_token(this.tokens[i]);
+      if (token) {
+        result.push(token);
+      }
+    }
+    return result;
+  }
+
+  // Get number of tokens owned by a given account
+  //
+  // Arguments:
+  // * `account_id`: a valid NEAR account
+  //
+  // Returns the number of non-fungible tokens owned by given `account_id` as
+  // a string representing the value as an unsigned 128-bit integer to avoid JSON
+  // number limit of 2^53; and "0" if there are no tokens.
+  nft_supply_for_owner(account_id: string): string {
+    // TODO: Implement token supply for owner
+    return "0";
+  }
+
+  // Get list of all tokens owned by a given account
+  //
+  // Arguments:
+  // * `account_id`: a valid NEAR account
+  // * `from_index`: a string representing an unsigned 128-bit integer,
+  //    representing the starting index of tokens to return
+  // * `limit`: the maximum number of tokens to return
+  //
+  // Returns a paginated list of all tokens owned by this account, and an empty array if there are no tokens
+  nft_tokens_for_owner(
+    account_id: string,
+    from_index: string = "0", // default: 0
+    limit: number = 0 // default: unlimited (could fail due to gas limit)
+  ): Token[] {
+    return [];
+  }
 }
 
 // Take some action after receiving a non-fungible token
@@ -295,16 +410,16 @@ export class PersistentNFT {
 // Returns true if token should be returned to `sender_id`
 @nearBindgen
 class nft_on_transfer {
-  sender_id: string;
-  previous_owner_id: string;
+  sender_id: AccountId;
+  previous_owner_id: AccountId;
   token_id: string;
   msg: string;
 }
 
 @nearBindgen
 class nft_resolve_transfer {
-  owner_id: string;
-  receiver_id: string;
+  owner_id: AccountId;
+  receiver_id: AccountId;
   token_id: string;
-  approved_account_ids: Map<string, u32> | null;
+  approved_account_ids: Map<string, u64> | null;
 }
