@@ -47,7 +47,7 @@
         <div class="fit">
           <div class="row q-col-gutter-lg justify-between">
             <div class="col-3" v-for="[id, event] in relatedEvents" :key="id">
-              <event-card :id="id" :event="event" />
+              <event-card extend :id="id" :event="event" />
             </div>
           </div>
         </div>

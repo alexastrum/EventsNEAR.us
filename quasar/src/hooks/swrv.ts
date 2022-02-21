@@ -15,7 +15,7 @@ export function markRawSafe<T>(obj: T): T {
 
 export const defaultCache = new SWRVCache<CacheItem<unknown, unknown>>();
 export const refCounts = new Map<string, number>();
-console.log('SWRV', defaultCache, refCounts);
+// console.log('SWRV', defaultCache, refCounts);
 
 export type AnyTuple =
   | [any]

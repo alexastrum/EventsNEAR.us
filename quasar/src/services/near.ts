@@ -85,7 +85,7 @@ export function getContract(
     );
   }
 
-  console.log('NEAR', near, wallet, contract);
+  // console.log('NEAR', near, wallet, contract);
   return {
     contract,
     signIn,
@@ -124,7 +124,7 @@ export async function getCurrentUser(
     >('signIn')({ signature });
     await signInWithCustomToken(token);
     await mutate('profile', profile);
-    console.log('signInWithCustomToken', signature, token, profile);
+    // console.log('signInWithCustomToken', signature, token, profile);
   }
 
   /**

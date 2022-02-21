@@ -130,7 +130,9 @@
 </template>
 
 <script lang="ts">
+// import { useFirestoreCollection } from 'src/hooks/firebase';
 import { useCurrentUser, useNearContract } from 'src/hooks/near';
+// import { Event } from 'src/models';
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -147,6 +149,15 @@ export default defineComponent({
 
     const { data: near } = useNearContract();
     const { data: currentUser } = useCurrentUser();
+
+    // const { data: eventsList } = useFirestoreCollection<Event>('events');
+
+    // eventsList.value.values()
+    // const events = computed(() =>
+    //   ([...(eventsList.value?.values() ?? [])] as Event[]).map(
+    //     (x: Event) => x.title
+    //   )
+    // );
 
     return { searchQuery, search, near, currentUser };
   },

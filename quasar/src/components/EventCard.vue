@@ -9,7 +9,13 @@
     class="fn-link cursor-pointer"
     :class="extend ? 'col' : ''"
   >
-    <q-card v-if="small || smaller" bordered dark flat class="fit bg-lightdark">
+    <q-card
+      v-if="small || smaller"
+      bordered
+      dark
+      flat
+      class="fit bg-lightdark col"
+    >
       <div class="fit">
         <div class="row q-pa-md items-center">
           <!-- CONTENT -->
@@ -36,20 +42,30 @@
               >
                 {{ event?.title || 'Untitled event' }}
               </h3>
-              <q-item-section :class="smaller ? 'fn-sm' : 'fn-md'">
+              <q-item-section :class="smaller ? 'fn-sm q-mb-sm' : 'fn-md'">
                 <q-item-label :lines="2">
                   {{ description || event?.description || 'No description' }}
                 </q-item-label>
               </q-item-section>
 
-              <div
-                class="row col items-end justify-end text-grey-6"
-                :class="smaller ? 'fn-sm' : 'fn-md'"
-              >
-                <template v-if="subtitle">
-                  {{ subtitle }}
-                </template>
-                <template v-else> Hosted by {{ event.ownerUid }} </template>
+              <div class="col row items-end">
+                <div
+                  class="row col justify-between text-grey-6"
+                  :class="smaller ? 'fn-sm' : 'fn-md'"
+                >
+                  <div class="text-grey-6">
+                    <template v-if="subtitle">
+                      {{ subtitle }}
+                    </template>
+                    <template v-else> Hosted by {{ event.ownerUid }} </template>
+                  </div>
+                  <div class="text-grey-6">
+                    <template v-if="subtitle2">
+                      {{ subtitle2 }}
+                    </template>
+                    <template v-else>{{ event.date }} </template>
+                  </div>
+                </div>
               </div>
             </q-item>
           </div>
@@ -94,11 +110,19 @@
           </q-item-label>
         </q-item-section>
 
-        <div class="text-grey-6 q-mt-lg">
-          <template v-if="subtitle">
-            {{ subtitle }}
-          </template>
-          <template v-else> Hosted by {{ event.ownerUid }} </template>
+        <div class="row justify-between">
+          <div class="text-grey-6 q-mt-lg">
+            <template v-if="subtitle">
+              {{ subtitle }}
+            </template>
+            <template v-else> Hosted by {{ event.ownerUid }} </template>
+          </div>
+          <div class="text-grey-6 q-mt-lg">
+            <template v-if="subtitle2">
+              {{ subtitle2 }}
+            </template>
+            <template v-else>{{ event.date }} </template>
+          </div>
         </div>
       </div>
       <!-- SKELETON -->
@@ -129,6 +153,7 @@ export default defineComponent({
     smaller: Boolean,
     large: Boolean,
     subtitle: String,
+    subtitle2: String,
     description: String,
     event: Object as PropType<Event>,
     showTickets: Boolean,

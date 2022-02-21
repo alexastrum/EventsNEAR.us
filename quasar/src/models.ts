@@ -5,6 +5,8 @@ export interface Event {
   tags?: string[];
   createdDate: Date;
   featured?: boolean;
+  latest?: boolean;
+  approved?: boolean;
   ownerUid?: string;
 }
 

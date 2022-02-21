@@ -34,6 +34,9 @@ export function useNearContract(
   );
 }
 
+// const {data:t} = useNearContract()
+// t.value.signIn
+
 export function useCurrentUser() {
   const near = useNear();
   const firebaseUser = useFirebaseUser();

@@ -7,7 +7,7 @@
           Available events
         </h2>
         <div class="fit">
-          <div class="row q-col-gutter-lg justify-between">
+          <div class="row q-col-gutter-lg">
             <div
               class="col-6 col-md-3"
               v-for="[id, event] in eventsList"
@@ -18,6 +18,7 @@
           </div>
         </div>
       </div>
+      <!-- {{ eventsList }} {{ eventsListP }} -->
     </div>
   </q-page>
 </template>
@@ -37,7 +38,12 @@ import { Event } from '../models';
 export default defineComponent({
   components: { EventCard },
   setup() {
-    const { data: eventsList } = useFirestoreCollection<Event>('events');
+    const { data: eventsList } = useFirestoreCollection<Event>(
+      'events',
+      () => ({
+        whereEquals: { approved: true },
+      })
+    );
 
     return { eventsList };
   },

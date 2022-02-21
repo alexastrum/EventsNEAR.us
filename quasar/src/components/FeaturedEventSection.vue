@@ -20,12 +20,7 @@
         <h2 class="q-my-none fn-xl fn-bold text-light">Latest Events</h2>
         <div class="justify-between column q-col-gutter-md">
           <div v-for="[id, event] in latestEvents" :key="id" class="col">
-            <event-card
-              small
-              :id="id"
-              :event="event"
-              subtitle="Happening today"
-            />
+            <event-card small :id="id" :event="event" />
           </div>
         </div>
       </div>
@@ -47,6 +42,7 @@ export default defineComponent({
       'events',
       () => ({
         // orderBy: ['created', 'desc'],
+        whereEquals: { latest: true },
         limit: 3,
       })
     );
