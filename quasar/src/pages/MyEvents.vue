@@ -3,11 +3,12 @@
     <div class="container column q-mx-auto q-px-md q-col-gutter-y-xl q-mb-xl">
       <!-- MY EVENTS -->
       <div class="fit q-pb-md">
-        <h2 class="q-my-none fn-xl fn-bold text-light q-mb-md">My tickets</h2>
+        <h2 class="q-my-none fn-xl fn-bold text-light q-mb-md">My Tickets</h2>
         <div class="fit">
           <div class="row q-col-gutter-lg justify-between">
             <div class="col-4" v-for="[id, event] in myTickets" :key="id">
               <event-card
+                showTickets
                 :id="id"
                 :event="event"
                 smaller
@@ -21,7 +22,7 @@
       <!-- HOSTED -->
       <div class="fit q-pb-md">
         <h2 class="q-my-none fn-xl fn-bold text-light q-mb-md">
-          Hosted events
+          Hosted Events
         </h2>
         <div class="fit">
           <div class="row q-col-gutter-lg justify-between">
@@ -37,7 +38,7 @@
       </div>
       <div class="fit q-pb-md">
         <h2 class="q-my-none fn-xl fn-bold text-light q-mb-md">
-          Attended events
+          Attended Events
         </h2>
         <div class="fit">
           <div class="row q-col-gutter-lg justify-between">

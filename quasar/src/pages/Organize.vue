@@ -1,5 +1,4 @@
 <template>
-  {{ tagOptions }}dsfdsf
   <q-page>
     <near-auth-prompt>
       <div class="container column q-mx-auto q-px-md q-col-gutter-y-xl q-mb-xl">
@@ -14,7 +13,7 @@
             <div class="col-7">
               <q-card bordered dark flat class="bg-lightdark row full-height">
                 <div class="row q-pa-lg q-pb-none full-width">
-                  <div class="q-mb-md fn-bold fn-lg">Banner image</div>
+                  <div class="q-mb-md fn-bold fn-lg">Banner Image</div>
                   <div class="row full-width items-end">
                     <media-input class="col-12" v-model="form.image" />
                   </div>
@@ -25,7 +24,7 @@
               <!-- DETAILS -->
               <q-card bordered dark flat class="bg-lightdark row">
                 <div class="q-pa-lg fit fn-lg">
-                  <div class="q-mb-md fn-bold">Event details</div>
+                  <div class="q-mb-md fn-bold">Event Details</div>
                   <div class="row">
                     <text-input label="Name" class="col" v-model="form.title" />
                   </div>
@@ -66,7 +65,7 @@
           <q-card bordered dark flat class="bg-lightdark row q-mt-md">
             <div class="q-pa-lg fit">
               <div class="q-ma-sm fn-lg fn-bold">
-                Initial ticket distribution
+                Initial Ticket Distribution
               </div>
               <div class="column q-gutter-sm">
                 <!-- FOR -->
@@ -111,13 +110,15 @@
                   </div>
                 </div>
                 <!-- ADD MORE -->
-                <div class="q-ml-md">
-                  <q-btn
-                    @click="distributionAdd"
-                    flat
-                    class="col q-py-sm"
-                    label="Add recipient"
-                  />
+                <div class="q-ml-md text-right">
+                  <div>
+                    <q-btn
+                      @click="distributionAdd"
+                      flat
+                      class="col q-py-sm"
+                      label="Add recipient"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
